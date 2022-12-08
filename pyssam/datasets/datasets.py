@@ -1,24 +1,24 @@
 import networkx as nx
 import numpy as np
-from numpy import sin, cos
 import pyssam
+from numpy import cos, sin
 
 __all__ = ["Tree"]
 
+
 class Tree:
-  """
-  Create tree object based on a set of pre-defined parameters.
+  """Create tree object based on a set of pre-defined parameters.
 
   Parameters
   ----------
   length : list
         Minimum and maximum values for tree first branch segment
-  length_ratio : list            
+  length_ratio : list
         Minimum and maximum values to sample for length ratio between
         parent and child branches
   angle : list
-        Minimum and maximum values to sample for angle between child branch and
-        parent branch vectors
+        Minimum and maximum values to sample for angle between child 
+        branch and parent branch vectors
   num_extra_ends : int
         Number of additional bifurcation levels to generate
 
@@ -30,14 +30,14 @@ class Tree:
   >>> tree_class = Tree(num_extra_ends=2)
   >>> print(make_tree_landmarks().shape)
   (32, 3)
-
   """
+
   def __init__(
     self,
-    length=[3.8, 4.2],
-    length_ratio=[0.2, 0.8],
-    angle=[5, 60],
-    num_extra_ends=0,
+    length: list = [3.8, 4.2],
+    length_ratio: list = [0.2, 0.8],
+    angle: list = [5, 60],
+    num_extra_ends: int = 0,
   ):
     self._length = length
     self._length_ratio = length_ratio
@@ -57,7 +57,7 @@ class Tree:
     ), "List length should be 2 (corresponding to min and max values)"
 
   def _grow_graph_end_nodes(self, graph: nx.DiGraph) -> nx.DiGraph:
-    """ Add additional bifurcation level to each end point in current tree
+    """Add additional bifurcation level to each end point in current tree.
 
     Parameters
     ----------
@@ -81,7 +81,7 @@ class Tree:
     return pyssam.euclidean_distance(pos_distal, pos_proximal)
 
   def _initialise_tree(self):
-    """ Create baseline tree structure to adapt from for creating population
+    """Create baseline tree structure to adapt from for creating population.
 
     Parameters
     ----------
@@ -108,9 +108,8 @@ class Tree:
     return graph
 
   def make_tree(self) -> nx.DiGraph:
-    """
-    Make a tree structure based on a baseline graph by randomly creating nodal 
-    coordinates (also determined by angle, length and length_ratio)
+    """Make a tree structure based on a baseline graph by randomly creating
+    nodal coordinates (also determined by angle, length and length_ratio)
 
     Parameters
     ----------
@@ -125,13 +124,13 @@ class Tree:
     length_i = np.random.uniform(self._length[0], self._length[1])
     graph.nodes[1]["position"] = np.array([0, 0, length_i])
 
-    for i, current_edge in enumerate(nx.dfs_edges(graph, 0)):
+    for current_edge in nx.dfs_edges(graph, 0):
+      # get all attributes from current edge and each node in edge
       parent_node = current_edge[0]
       node_i = current_edge[1]
       parent_position = graph.nodes[parent_node]["position"]
       current_position = graph.nodes[node_i]["position"]
       child_edges = list(graph.out_edges(node_i))
-      dist_to_root = nx.shortest_path_length(graph, self._root, node_i)
       angle_multiplier = [1, -1]
       for angle_multiplier_i, edge_i in zip(angle_multiplier, child_edges):
         child_i = edge_i[1]
@@ -157,24 +156,26 @@ class Tree:
 
         x_child_i = current_position[0] + length_i * cos(angle_out)
         z_child_i = current_position[2] + length_i * sin(angle_out)
-        if "position" in graph.nodes[child_i].keys():
-          print("pos already here")
-          pass
-        else:
-          graph.nodes[child_i]["position"] = np.array([x_child_i, 0, z_child_i])
+        graph.nodes[child_i]["position"] = np.array([x_child_i, 0, z_child_i])
 
     return graph
 
   def graph_to_coords(self, graph: nx.DiGraph) -> np.array:
+    """Convert "position" key from all nodes in graph to a numpy array of
+    coordinates.
+
+    Parameters
+    ----------
+    graph : nx.DiGraph
+    """
     coords_out = []
     for node_i in graph:
       coords_out.append(graph.nodes[node_i]["position"])
     return np.array(coords_out)
 
   def make_tree_landmarks(self) -> np.array:
-    """
-    Make tree landmarks based on a baseline graph by randomly creating nodal 
-    coordinates (also determined by angle, length and length_ratio)
+    """Make tree landmarks based on a baseline graph by randomly 
+    creating nodal coordinates 
 
     Parameters
     ----------
@@ -183,7 +184,8 @@ class Tree:
     Returns
     -------
     landmarks : array_like
-        Landmarks for nodal coordinates on randomly created graph that can be used with shape model
+        Landmarks for nodal coordinates on randomly created graph 
+        that can be used with shape model
     """
     tree_graph = self.make_tree()
     return self.graph_to_coords(tree_graph)
