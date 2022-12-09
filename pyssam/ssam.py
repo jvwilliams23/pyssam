@@ -25,23 +25,23 @@ class SSAM(StatisticalModelBase):
     # align all samples to origin
     self.landmarks = landmarks - landmarks.mean(axis=1)[:, np.newaxis]
     # initialise shape model data
-    self.landmarks_columnvec = self.landmarks.reshape(
+    self.landmarks_columns = self.landmarks.reshape(
       self.landmarks.shape[0], self.landmarks.shape[1] * self.landmarks.shape[2]
     )
     (
-      self.landmarks_columnvec_scale,
-      self.appearance_columnvec_scale,
+      self.landmarks_columns_scale,
+      self.appearance_columns_scale,
     ) = self.rescale_shape_and_appearance(
-      self.landmarks_columnvec, self.appearance
+      self.landmarks_columns, self.appearance
     )
 
     self.shape_appearance = np.dstack(
       (
-        self.landmarks_columnvec_scale.reshape(self.landmarks.shape),
-        self.appearance_columnvec_scale,
+        self.landmarks_columns_scale.reshape(self.landmarks.shape),
+        self.appearance_columns_scale,
       )
     )
-    self.shape_appearance_columnvector = self.shape_appearance.reshape(
+    self.shape_appearance_columns = self.shape_appearance.reshape(
       self.shape_appearance.shape[0],
       self.shape_appearance.shape[1] * self.shape_appearance.shape[2],
     )
@@ -52,25 +52,28 @@ class SSAM(StatisticalModelBase):
 
   def compute_dataset_mean(self):
     """"""
-    return np.mean(self.shape_appearance_columnvector, axis=0)
+    return np.mean(self.shape_appearance_columns, axis=0)
 
-  def rescale_shape_and_appearance(self, landmarks_columnvec, appearance):
+  def rescale_shape_and_appearance(self, landmarks_columns, appearance):
     """
     x: samples x 3landmarks matrix of coordinates
     g: samples x landmarks matrix of intensities (grey-value)
     """
     # normalise coordinates
-    landmarks_columnvec_scale = landmarks_columnvec.copy()
-    landmarks_columnvec_scale /= landmarks_columnvec_scale.std(axis=1)[
+    landmarks_columns_scale = landmarks_columns.copy()
+    landmarks_columns_scale /= landmarks_columns_scale.std(axis=1)[
       :, np.newaxis
     ]
-    landmarks_columnvec_scale = landmarks_columnvec_scale.reshape(
+    landmarks_columns_scale = landmarks_columns_scale.reshape(
       self.landmarks.shape
     )
     # normalise gray values
-    appearance_scale = appearance - appearance.mean(axis=1)[:, np.newaxis]
-    appearance_scale = (
-      appearance_scale / appearance_scale.std(axis=1)[:, np.newaxis]
+    appearance_columns_scale = (
+      appearance - appearance.mean(axis=1)[:, np.newaxis]
+    )
+    appearance_columns_scale = (
+      appearance_columns_scale
+      / appearance_columns_scale.std(axis=1)[:, np.newaxis]
     )
 
-    return landmarks_columnvec_scale, appearance_scale
+    return landmarks_columns_scale, appearance_columns_scale

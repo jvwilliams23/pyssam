@@ -15,7 +15,7 @@ class TestSSM(unittest.TestCase):
       )
 
       ssm_obj = pyssam.SSM(landmark_coordinates)
-      ssm_obj.create_pca_model(ssm_obj.landmarks_columnvec_scale)
+      ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale)
       mean_shape_columnvector = ssm_obj.compute_dataset_mean()
       mean_shape = mean_shape_columnvector.reshape(-1, 3)
       pca_model_components = ssm_obj.pca_model_components

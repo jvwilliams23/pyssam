@@ -10,13 +10,12 @@ class SSM(StatisticalModelBase):
 
     # align all samples to origin
     self.landmarks = landmarks - landmarks.mean(axis=1)[:, np.newaxis]
-    self.landmarks_columnvec = self.landmarks.reshape(
+    self.landmarks_columns = self.landmarks.reshape(
       landmarks.shape[0], landmarks.shape[1] * landmarks.shape[2]
     )
 
-    self.landmarks_columnvec_scale = (
-      self.landmarks_columnvec
-      / self.landmarks_columnvec.std(axis=1)[:, np.newaxis]
+    self.landmarks_columns_scale = (
+      self.landmarks_columns / self.landmarks_columns.std(axis=1)[:, np.newaxis]
     )
 
   def compute_dataset_mean(self):
@@ -27,4 +26,4 @@ class SSM(StatisticalModelBase):
     Returns:
       mean value of each landmark index to create the mean shape
     """
-    return np.mean(self.landmarks_columnvec_scale, axis=0)
+    return np.mean(self.landmarks_columns_scale, axis=0)
