@@ -38,6 +38,9 @@ class StatisticalModelBase(ABC):
     -------
     None
     """
+    assert (
+      0.0 < desired_variance <= 1.0
+    ), f"desired_variance out of bounds {desired_variance}"
     # perform principal component analysis to train shape model
     self.pca_object, self.required_mode_number = self.do_pca(
       dataset, desired_variance
@@ -90,7 +93,7 @@ class StatisticalModelBase(ABC):
         "which may produce unrealistic output"
       )
     assert pca_model_components.ndim == 2, (
-      f"pca model not of expected number of dimensions" 
+      f"pca model not of expected number of dimensions"
       f" (shape is {pca_model_components.shape})"
     )
     model_weight = model_parameters * self.std

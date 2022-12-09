@@ -26,7 +26,8 @@ class TestSSM(unittest.TestCase):
       test_shape_columnvec /= test_shape_columnvec.std()
       test_params = (
         np.dot(
-          (test_shape_columnvec - mean_shape_columnvector), pca_model_components.T
+          (test_shape_columnvec - mean_shape_columnvector),
+          pca_model_components.T,
         )
         / ssm_obj.std
       )
@@ -51,6 +52,24 @@ class TestSSM(unittest.TestCase):
       assert np.allclose(
         test_shape_columnvec, morphed_test_shape
       ), "reconstructed shape not close to landmarks"
+
+  def test_desired_variance_bounds(self):
+    tree_class = pyssam.datasets.Tree(num_extra_ends=0)
+    num_samples = 10
+    landmark_coordinates = np.array(
+      [tree_class.make_tree_landmarks() for i in range(0, num_samples)]
+    )
+    ssm_obj = pyssam.SSM(landmark_coordinates)
+    desired_variance_list = [-0.0001, -50, 1.1, 1.00001, 50]
+    for desired_variance in desired_variance_list:
+      try:
+        ssm_obj.create_pca_model(
+          ssm_obj.landmarks_columns_scale, desired_variance=desired_variance
+        )
+      except AssertionError:
+        pass
+      else:
+        AssertionError("AssertionError for desired variance not identified")
 
 
 if __name__ == "__main__":
