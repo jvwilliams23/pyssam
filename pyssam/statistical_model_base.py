@@ -58,8 +58,8 @@ class StatisticalModelBase(ABC):
     pca_model_components: np.ndarray,
     model_parameters: np.array,
   ) -> np.array:
-    """Morph the mean dataset based on the PCA weights and variances,
-    with some user-defined model parameters to create a new sample.
+    """Morph the mean dataset based on the PCA weights and variances, with some
+    user-defined model parameters to create a new sample.
 
     Parameters
     ----------
@@ -89,9 +89,7 @@ class StatisticalModelBase(ABC):
         f"Applying large model parameter ({abs(model_parameters).max()}) "
         "which may produce unrealistic output"
       )
-    assert (
-      pca_model_components.ndim == 2
-    ), (
+    assert pca_model_components.ndim == 2, (
       f"pca model not of expected number of dimensions" 
       f" (shape is {pca_model_components.shape})"
     )
@@ -100,7 +98,9 @@ class StatisticalModelBase(ABC):
       pca_model_components.T, model_weight
     )
 
-  def do_pca(self, dataset: np.ndarray, desired_variance: float = 0.9) -> Tuple[Any, int]:
+  def do_pca(
+    self, dataset: np.ndarray, desired_variance: float = 0.9
+  ) -> Tuple[Any, int]:
     """Fit principal component analysis to given dataset.
 
     Parameters
