@@ -78,7 +78,7 @@ class Tree:
   def _parent_branch_length(self, graph, edge_parent) -> float:
     pos_distal = graph.nodes[edge_parent[0]]["position"]
     pos_proximal = graph.nodes[edge_parent[1]]["position"]
-    return pyssam.euclidean_distance(pos_distal, pos_proximal)
+    return pyssam.utils.euclidean_distance(pos_distal, pos_proximal)
 
   def _initialise_tree(self):
     """Create baseline tree structure to adapt from for creating population.
