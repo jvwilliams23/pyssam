@@ -1,4 +1,4 @@
-"""Develops SAM to analyse appearance correlations across a dataset."""
+"""Create statistical appearance model (SAM) for a set of samples."""
 
 from copy import copy
 
@@ -41,11 +41,11 @@ class SAM(StatisticalModelBase):
     )
 
   def compute_dataset_mean(self) -> np.array:
-    """Average over all samples to produce a column-vector of the mean shape.
+    """Average over all samples to produce a column-vector of the mean appearance.
 
     Returns
     -------
     mean_columnvector : array_like
-        mean shape of all samples in dataset
+        mean appearance of all samples in dataset
     """
     return np.mean(self.appearance_scale, axis=0)

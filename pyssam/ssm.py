@@ -1,3 +1,4 @@
+"""Create statistical shape model (SSM) for a set of shapes."""
 import numpy as np
 
 from . import StatisticalModelBase
@@ -13,7 +14,7 @@ class SSM(StatisticalModelBase):
       First dimension has size equal to the number of samples.
       Second dimension has size equal to the number of landmarks per sample.
       Third dimension has size equal to the number of spatial
-        dimensions occupied by the shapes (e.g. 3D or 2D).
+      dimensions occupied by the shapes (e.g. 3D or 2D).
 
   Examples
   ========

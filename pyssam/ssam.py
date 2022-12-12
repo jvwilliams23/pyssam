@@ -1,40 +1,66 @@
-"""Use SSM and SAM to analyse joint correlation between shape and
-appearance."""
+"""Create statistical shape and appearance model (SSAM) for a set of samples."""
 import numpy as np
 
 from . import SAM, SSM, StatisticalModelBase
 
 
 class SSAM(StatisticalModelBase):
-  def __init__(self, landmarks, appearance):
+  """Create statistical shape and appearance model for a set of samples.
+
+  Parameters
+  ----------
+  landmarks : array_like
+      Coordinates for landmarks in dataset, with 3 dimensions.
+      First dimension has size equal to the number of samples.
+      Second dimension has size equal to the number of landmarks per sample.
+      Third dimension has size equal to the number of spatial
+      dimensions occupied by the shapes (e.g. 3D or 2D).
+  appearance : array_like
+      Appearances for landmarks in dataset, with 2 dimensions.
+      First dimension has size equal to the number of samples.
+      Second dimension has size equal to the number of landmarks per sample.
+
+  Examples
+  ========
+  >>> num_samples = 5
+  >>> num_landmarks = 10
+  >>> landmarks = np.random.normal(size=(num_samples, num_landmarks, 3))
+  >>> appearances = np.random.normal(size=(num_samples, num_landmarks, 3))
+  >>> ssam = pyssam.SSAM(landmarks, appearances)
+  >>> print(ssam.shape_appearance_columns.shape)
+  (5, 40)
+  >>> print(ssam.compute_dataset_mean().shape)
+  (40,)
+  """
+  def __init__(self, landmarks : np.ndarray, appearance: np.ndarray):
 
     # shape modelling classes
     self.ssm = SSM(landmarks)
     self.sam = SAM(appearance)
 
-    # initialise input variables
+    # import scaled variables from SSM and SAM classes
     self.landmarks_columns_scale = self.ssm.landmarks_columns_scale
-    self.appearance = self.sam.appearance_base
     self.appearance_columns_scale = self.sam.appearance_scale
 
-    # align all samples to origin
-    self.landmarks = landmarks - landmarks.mean(axis=1)[:, np.newaxis]
-    # initialise shape model data
-    self.landmarks_columns = self.landmarks.reshape(
-      self.landmarks.shape[0], self.landmarks.shape[1] * self.landmarks.shape[2]
-    )
-
+    # stack shape and appearance for each landmark
     self.shape_appearance = np.dstack(
       (
         self.landmarks_columns_scale.reshape(landmarks.shape),
         self.appearance_columns_scale,
       )
     )
+    # convert stacked shape + appearance into a single column for all landmarks
     self.shape_appearance_columns = self.shape_appearance.reshape(
       self.shape_appearance.shape[0],
       self.shape_appearance.shape[1] * self.shape_appearance.shape[2],
     )
 
-  def compute_dataset_mean(self):
-    """"""
+  def compute_dataset_mean(self) -> np.ndarray:
+    """Average over all samples to get column-vector of mean shape and appearance.
+
+    Returns
+    -------
+    mean_columnvector : array_like
+        mean shape and appearance of all samples in dataset
+    """
     return np.mean(self.shape_appearance_columns, axis=0)
