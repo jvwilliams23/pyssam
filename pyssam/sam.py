@@ -32,16 +32,16 @@ class SAM(StatisticalModelBase):
   def __init__(self, appearance: np.ndarray):
 
     # initialise variables
+    self._num_landmarks = appearance.shape[1]
     self.appearance_base = copy(appearance)
-    _appearance_aligned = (
-      self.appearance_base - self.appearance_base.mean(axis=1)[:, np.newaxis]
-    )
-    self.appearance_scale = (
-      _appearance_aligned / _appearance_aligned.std(axis=1)[:, np.newaxis]
+    self.appearance_scale = self.scale_dataset(appearance)
+    self.appearance_columns_scale = self.landmark_data_to_column(
+      self.appearance_scale
     )
 
   def compute_dataset_mean(self) -> np.array:
-    """Average over all samples to produce a column-vector of the mean appearance.
+    """Average over all samples to produce a column-vector of the mean
+    appearance.
 
     Returns
     -------

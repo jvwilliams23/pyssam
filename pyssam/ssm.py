@@ -31,14 +31,10 @@ class SSM(StatisticalModelBase):
   def __init__(self, landmarks: np.ndarray):
 
     # align all samples to origin
-    self.landmarks = landmarks - landmarks.mean(axis=1)[:, np.newaxis]
-    self._landmarks_columns = self.landmarks.reshape(
-      landmarks.shape[0], landmarks.shape[1] * landmarks.shape[2]
-    )
-
-    self.landmarks_columns_scale = (
-      self._landmarks_columns
-      / self._landmarks_columns.std(axis=1)[:, np.newaxis]
+    self._num_landmarks = landmarks.shape[1]
+    self.landmarks_scale = self.scale_dataset(landmarks)
+    self.landmarks_columns_scale = self.landmark_data_to_column(
+      self.landmarks_scale
     )
 
   def compute_dataset_mean(self) -> np.array:

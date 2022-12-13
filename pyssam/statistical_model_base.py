@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod, abstractproperty
+from copy import copy
 from typing import Any, Tuple
 
 import numpy as np
@@ -8,6 +9,84 @@ from sklearn.decomposition import PCA
 
 class StatisticalModelBase(ABC):
   """Abstract base class for statistical model."""
+
+  def landmark_data_to_column(self, landmark_array):
+    num_data_features = landmark_array.shape[-1]
+    reduced_array = landmark_array.reshape(
+      -1, self.num_landmarks * num_data_features
+    )
+    return np.squeeze(reduced_array)
+
+  @property
+  def num_landmarks(self):
+    return self._num_landmarks
+
+  @num_landmarks.setter
+  def num_landmarks(self, _num_landmarks):
+    raise AttributeError("Not allowed to overwrite num_landmarks")
+
+  def scale_dataset(self, dataset):
+    """Take 2D or 3D array representing landmarks for multiple samples in a
+    population, and scale to have zero mean and unit std dev.
+
+    Parameters
+    ----------
+    dataset : array_like
+        Landmarks for multiple samples in a population, with 2 or 3 dimensions
+
+    Returns
+    -------
+    scaled_dataset : array_like
+        Landmarks for multiple samples, each centered on mean = 0 and std dev = 1
+
+    Raises
+    ------
+    AssertionError
+        If number of dimensions on input data are not equal to 2 or 3
+
+    Examples
+    ========
+    >>> landmarks_in = np.random.uniform(0, 100, size=(5, 100, 3))
+    >>> ssm = pyssam.SSM(landmarks_in)
+    >>> scaled_landmarks = ssm.scale_dataset(landmarks_in)
+    >>> print(scaled_landmarks.mean(), scaled_landmarks.std())
+    0 1
+    """
+    dataset = self._check_data_shape(dataset)
+    aligned_dataset = dataset - dataset.mean(axis=1)[:, np.newaxis]
+    scaled_dataset = (
+      aligned_dataset / aligned_dataset.std(axis=(1, 2))[:, None, None]
+    )
+    return scaled_dataset
+
+  def _check_data_shape(self, dataset: np.ndarray) -> np.ndarray:
+    """Check that data to be scaled for PCA model has ndim = 3. This is useful
+    for appearance data, which is often a single-scalar, therefore ndim is usually 2.
+    In this case, an additional dimension of size 1 is added.
+
+    Parameters
+    ----------
+    dataset : array_like
+        N-dimension array of data to model, where each row on the first axis is one sample
+        and each column on the second axis is a landmark value
+
+    Returns
+    -------
+    dataset_reshaped : array_like
+        3D array of data, where 2D input arrays have a third dimension of size 1.
+        Input 3D arrays are untouched
+
+    Raises
+    ------
+    AssertionError
+        If ndim not equal to 2 or 2
+    """
+    if dataset.ndim == 2:
+      return np.expand_dims(dataset, axis=-1)
+    elif dataset.ndim == 3:
+      return copy(dataset)
+    else:
+      raise AssertionError(f"Unexpected shape {dataset.shape}")
 
   @abstractmethod
   def compute_dataset_mean(self) -> np.array:
@@ -58,7 +137,7 @@ class StatisticalModelBase(ABC):
   def morph_model(
     self,
     mean_dataset_columnvector: np.array,
-    pca_model_components : np.array,
+    pca_model_components: np.array,
     model_parameters: np.array,
     num_modes: int = 1000000,
   ) -> np.array:

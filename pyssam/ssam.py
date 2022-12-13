@@ -1,4 +1,5 @@
-"""Create statistical shape and appearance model (SSAM) for a set of samples."""
+"""Create statistical shape and appearance model (SSAM) for a set of
+samples."""
 import numpy as np
 
 from . import SAM, SSM, StatisticalModelBase
@@ -32,9 +33,11 @@ class SSAM(StatisticalModelBase):
   >>> print(ssam.compute_dataset_mean().shape)
   (40,)
   """
-  def __init__(self, landmarks : np.ndarray, appearance: np.ndarray):
+
+  def __init__(self, landmarks: np.ndarray, appearance: np.ndarray):
 
     # shape modelling classes
+    self._num_landmarks = landmarks.shape[1]
     self.ssm = SSM(landmarks)
     self.sam = SAM(appearance)
 
@@ -45,18 +48,18 @@ class SSAM(StatisticalModelBase):
     # stack shape and appearance for each landmark
     self.shape_appearance = np.dstack(
       (
-        self.landmarks_columns_scale.reshape(landmarks.shape),
-        self.appearance_columns_scale,
+        self.ssm.landmarks_scale,
+        self.sam.appearance_scale,
       )
     )
     # convert stacked shape + appearance into a single column for all landmarks
-    self.shape_appearance_columns = self.shape_appearance.reshape(
-      self.shape_appearance.shape[0],
-      self.shape_appearance.shape[1] * self.shape_appearance.shape[2],
+    self.shape_appearance_columns = self.landmark_data_to_column(
+      self.shape_appearance
     )
 
   def compute_dataset_mean(self) -> np.ndarray:
-    """Average over all samples to get column-vector of mean shape and appearance.
+    """Average over all samples to get column-vector of mean shape and
+    appearance.
 
     Returns
     -------
