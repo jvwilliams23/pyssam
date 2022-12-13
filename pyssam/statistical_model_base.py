@@ -58,8 +58,9 @@ class StatisticalModelBase(ABC):
   def morph_model(
     self,
     mean_dataset_columnvector: np.array,
-    pca_model_components: np.ndarray,
+    pca_model_components : np.array,
     model_parameters: np.array,
+    num_modes: int = 1000000,
   ) -> np.array:
     """Morph the mean dataset based on the PCA weights and variances, with some
     user-defined model parameters to create a new sample.
@@ -69,10 +70,14 @@ class StatisticalModelBase(ABC):
     mean_dataset_columnvector : array_like
         mean shape of the training data in a 1D array
     pca_model_components : array_like
-        eigenvectors of covariance matrix, obtain by principal component analysis
+        eigenvectors of covariance matrix, obtain by PCA
     model_parameters : array_like
         model parameters used to perturb each principal component by some amount
         1D array, where values should all be within +/- 3
+    num_modes : int
+        Number of principal components (or `modes') to include in model
+        to morph. By default this is set to a high number to set all modes
+        as included.
 
     Returns
     -------
@@ -96,9 +101,9 @@ class StatisticalModelBase(ABC):
       f"pca model not of expected number of dimensions"
       f" (shape is {pca_model_components.shape})"
     )
-    model_weight = model_parameters * self.std
+    model_weight = model_parameters * self.std[:num_modes]
     return mean_dataset_columnvector + np.dot(
-      pca_model_components.T, model_weight
+      pca_model_components[:num_modes].T, model_weight
     )
 
   def do_pca(
