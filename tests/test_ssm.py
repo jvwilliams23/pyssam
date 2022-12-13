@@ -115,6 +115,41 @@ class TestSSM(unittest.TestCase):
       else:
         AssertionError("AssertionError for desired variance not identified")
 
+  def test_property_decorator(self):
+    dataset_ssm = np.ones((10,10,3))
+    ssm = pyssam.SSM(dataset_ssm)
+    try:
+      ssm.num_landmarks = 20
+    except AttributeError:
+      print("passed test")
+    else:
+      raise AssertionError(
+        "Should not be able to overwrite ssm.num_landmarks"
+      )
+
+  def test__check_data_shape(self):
+    dataset_ssm = np.ones((10,10,3))
+    base_dataset_ssm = np.ones((10,10,3))
+    assert pyssam.SSM(base_dataset_ssm)._check_data_shape(dataset_ssm).ndim == 3, "ndim not equal to 3"
+    dataset_ssm = np.ones((10,10))
+    assert pyssam.SSM(base_dataset_ssm)._check_data_shape(dataset_ssm).ndim == 3, "ndim not equal to 3"
+    
+    dataset_ssm = np.ones((10))
+    try:
+      pyssam.SSM(base_dataset_ssm)._check_data_shape(dataset_ssm).ndim
+    except AssertionError:
+      pass
+    else:
+      AssertionError(f"SSM._check_data_shape not recognising input with ndim = {dataset_ssm.ndim}")
+
+    dataset_ssm = np.ones((10)*4)
+    try:
+      pyssam.SSM(base_dataset_ssm)._check_data_shape(dataset_ssm).ndim
+    except AssertionError:
+      pass
+    else:
+      AssertionError(f"SSM._check_data_shape not recognising input with ndim = {dataset_ssm.ndim}")
+
 class TestSSAM(unittest.TestCase):
   def test_morph_model(self):
     num_repititions = 10
@@ -131,7 +166,6 @@ class TestSSAM(unittest.TestCase):
       ssam_obj.create_pca_model(ssam_obj.shape_appearance_columns)
       mean_shape_columnvector = ssam_obj.compute_dataset_mean()
       mean_shape = mean_shape_columnvector.reshape(-1, 4)
-      pca_model_components = ssam_obj.pca_model_components
       
       test_shape_columnvec = (
         landmark_coordinates[0] - landmark_coordinates[0].mean(axis=0)
