@@ -48,4 +48,4 @@ class SAM(StatisticalModelBase):
     mean_columnvector : array_like
         mean appearance of all samples in dataset
     """
-    return np.mean(self.appearance_scale, axis=0)
+    return np.mean(self.appearance_columns_scale, axis=0)
