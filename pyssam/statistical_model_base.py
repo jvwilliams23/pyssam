@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod, abstractproperty
 from copy import copy
 from typing import Any, Tuple
+from warnings import warn
 
 import numpy as np
 import sklearn
@@ -116,6 +117,13 @@ class StatisticalModelBase(ABC):
     Returns
     -------
     None
+
+    Raises
+    ------
+    Warning
+        If mean of each sample in dataset not equal to 0
+    Warning
+        If standard deviation of each sample in dataset not equal to 1
     """
     assert (
       0.0 < desired_variance <= 1.0
@@ -147,12 +155,12 @@ class StatisticalModelBase(ABC):
     Parameters
     ----------
     mean_dataset_columnvector : array_like
-        mean shape of the training data in a 1D array
+        mean shape of the training data in a 1D array.
     pca_model_components : array_like
-        eigenvectors of covariance matrix, obtain by PCA
+        eigenvectors of covariance matrix, obtain by PCA.
     model_parameters : array_like
         model parameters used to perturb each principal component by some amount
-        1D array, where values should all be within +/- 3
+        1D array, where values should all be within +/- 3.
     num_modes : int
         Number of principal components (or `modes') to include in model
         to morph. By default this is set to a high number to set all modes
@@ -160,9 +168,9 @@ class StatisticalModelBase(ABC):
 
     Returns
     -------
-    morphed output : array_like
+    morphed_output : array_like
         A 1D array which has been perturbed from the mean shape based
-        on the pca_model and model_parameters
+        on the pca_model and model_parameters.
 
     Raises
     ------
@@ -172,7 +180,7 @@ class StatisticalModelBase(ABC):
         If number of dimension in pca_model_components not equal to 2
     """
     if np.any(abs(model_parameters) > 3.0):
-      Warning(
+      warn(
         f"Applying large model parameter ({abs(model_parameters).max()}) "
         "which may produce unrealistic output"
       )
@@ -198,12 +206,22 @@ class StatisticalModelBase(ABC):
     desired_variance : float
         Fraction of total variance to be described by the reduced-dimension model
 
-    Returns:
+    Returns
+    -------
     pca : sklearn.decomposition._pca.PCA
         Object containing fitted PCA information e.g. components, explained variance
     required_mode_number : int
         Number of principal components needed to produce desired_variance
+
+    Raises
+    ------
+    Warning
+        If mean of each sample in dataset not equal to 0
+    Warning
+        If standard deviation of each sample in dataset not equal to 1
     """
+    self._check_data_scale(dataset)
+
     pca = PCA(svd_solver="full")
     pca.fit(dataset)
     required_mode_number = np.where(
@@ -216,3 +234,37 @@ class StatisticalModelBase(ABC):
     )
 
     return pca, required_mode_number
+
+  def _check_data_scale(self, dataset: np.ndarray) -> None:
+    """Check that data is appropriate for PCA, meaning that each sample has 0
+    mean and 1 std.
+
+    Parameters
+    ----------
+    dataset : array_like
+        N-dimension array of data to model, where each row on the first axis is one sample
+        and each column on the second axis is a landmark value
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    Warning
+        If mean of each sample in dataset not equal to 0
+    Warning
+        If standard deviation of each sample in dataset not equal to 1
+    """
+    if np.allclose(dataset.mean(axis=1), 0):
+      pass
+    else:
+      warn("Dataset mean should be 0, " f"is equal to {dataset.mean(axis=1)}")
+
+    if np.allclose(dataset.std(axis=1), 1):
+      pass
+    else:
+      warn(
+        "Dataset standard deviation should be 1, "
+        f"is equal to {dataset.std(axis=1)}"
+      )
