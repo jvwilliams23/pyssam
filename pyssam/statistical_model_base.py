@@ -182,10 +182,17 @@ class StatisticalModelBase(ABC):
         If number of dimension in pca_model_components not equal to 2
     """
     if np.any(abs(model_parameters) > 3.0):
-      warn(
-        f"Applying large model parameter ({abs(model_parameters).max()}) "
-        "which may produce unrealistic output"
-      )
+      if np.any(abs(model_parameters) > 10.0):
+        raise AssertionError(
+          f"Applying extremely large model parameter ({abs(model_parameters).max()}) "
+          "which may produce unrealistic output"
+        )
+      else:
+        warn(
+          f"Applying large model parameter ({abs(model_parameters).max()}) "
+          "which may produce unrealistic output"
+        )
+
     assert pca_model_components.ndim == 2, (
       f"pca model not of expected number of dimensions"
       f" (shape is {pca_model_components.shape})"
