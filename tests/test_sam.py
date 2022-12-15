@@ -65,47 +65,46 @@ def read_lung_data():
 
 class TestSAM(unittest.TestCase):
   def test_morph_model(self):
-
-    # global LANDMARKS, APPEARANCE
-    LANDMARKS, APPEARANCE, xr_class = read_lung_data()
+    LANDMARKS, APPEARANCE, _ = read_lung_data()
     sam_obj = pyssam.SAM(APPEARANCE)
     sam_obj.create_pca_model(sam_obj.appearance_columns_scale, desired_variance=0.99999)
     # num_modes = sam_obj.required_mode_number
     mean_appearance = sam_obj.compute_dataset_mean()
     
-    test_appearance = APPEARANCE[0]
-    test_params = (
-      np.dot(
-        (test_appearance - mean_appearance),
-        sam_obj.pca_model_components.T,
+    # run test for all cases in database
+    for test_appearance in APPEARANCE:
+      test_params = (
+        np.dot(
+          (test_appearance - mean_appearance),
+          sam_obj.pca_model_components.T,
+        )
+        / sam_obj.std
       )
-      / sam_obj.std
-    )
 
-    # we get some issue with large shape parameters of modes that contribute
-    # very small variance. We remove these temporarily to avoid interfering
-    # with our test
-    relevant_parameters = np.where(abs(test_params)<5, test_params, 0)
-    # shape parameters should generally be < 3 times the mode standard deviation
-    # check all parameters below 5 (5 instead of 3 to be conservative)
-    assert np.all(abs(relevant_parameters) < 5), (
-      f"shape parameters too high (max {abs(relevant_parameters).max()}), "
-      f"may be scaling issue {abs(relevant_parameters)}"
-    )
+      # we get some issue with large shape parameters of modes that contribute
+      # very small variance. We remove these temporarily to avoid interfering
+      # with our test
+      relevant_parameters = np.where(abs(test_params)<5, test_params, 0)
+      # shape parameters should generally be < 3 times the mode standard deviation
+      # check all parameters below 5 (5 instead of 3 to be conservative)
+      assert np.all(abs(relevant_parameters) < 5), (
+        f"shape parameters too high (max {abs(relevant_parameters).max()}), "
+        f"may be scaling issue {abs(relevant_parameters)}"
+      )
 
-    morphed_appearance = sam_obj.morph_model(
-      mean_appearance, sam_obj.pca_model_components, relevant_parameters
-    )
-    diff = test_appearance - morphed_appearance
+      morphed_appearance = sam_obj.morph_model(
+        mean_appearance, sam_obj.pca_model_components, relevant_parameters
+      )
 
-    assert np.allclose(
-      test_appearance, morphed_appearance
-    ), (
-      "reconstructed appearance not close to landmarks "
-      "mean difference = "
-      f"{np.mean(abs(test_appearance - morphed_appearance))} \n"
-      f"{test_appearance - morphed_appearance}"
-    )
+      # check that reconstructed appearance matches the target when same parameters are used
+      assert np.allclose(
+        test_appearance, morphed_appearance
+      ), (
+        "reconstructed appearance not close to landmarks "
+        "mean difference = "
+        f"{np.mean(abs(test_appearance - morphed_appearance))} \n"
+        f"{test_appearance - morphed_appearance}"
+      )
 
 
 if __name__ == "__main__":
