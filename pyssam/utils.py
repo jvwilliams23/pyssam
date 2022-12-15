@@ -90,6 +90,12 @@ class AppearanceFromXray:
     # initialise variables
     self.imgs_all = imgs_all
     # generate spatial coordinates for each pixel on X-ray
+    assert (
+      img_origin.shape == img_spacing.shape
+    ), (
+      "Image origin and spacing not with same number of spatial dimensions " 
+      f"({img_origin.shape} != {img_spacing.shape})"
+    )
     self.pixel_coordinates = self.radiograph_to_realworld_coordinates(
       self.imgs_all, img_origin, img_spacing
     )
@@ -123,8 +129,11 @@ class AppearanceFromXray:
     Raises
     ------
     AssertionError
-        if final dimension of spacing has shape not equal to 2 or 3.
+        If final dimension of spacing has shape not equal to 2 or 3.
+    AssertionError
+        If size of final two dimensions of img not equal to each other (square image)
     """
+    assert img.shape[-1] == img.shape[-2], f"image not square (shape {img.shape}"
     if spacing.shape[-1] == 2:
       print("using 2D coordinates for X-ray")
       return self.radiograph_to_realworld_coordinates_2D(img, origin, spacing)
