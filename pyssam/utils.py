@@ -282,7 +282,7 @@ class AppearanceFromXray:
     normalised_density = landmark_grayvalue - landmark_grayvalue.mean()
     normalised_density /= normalised_density.std()
 
-    return landmark_grayvalue
+    return normalised_density
 
   def all_landmark_density(self, landmarks: np.ndarray) -> np.ndarray:
     """Returns density of all landmarks in a dataset based on comparing
