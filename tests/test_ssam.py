@@ -6,10 +6,10 @@ import pyssam
 
 
 def read_lung_data():
-  LANDMARK_DIR = "exampleData/gamesData/"
-  XR_DIR = "exampleData/drrs/"
+  LANDMARK_DIR = "example_data/lung_landmarks/"
+  XR_DIR = "example_data/reconstructed_xrays/"
   # Get directories for DRR and landmark data
-  origin_dir_list = glob(f"{XR_DIR}/origins/origins/drr*.md")
+  origin_dir_list = glob(f"{XR_DIR}/origins/origins/drr*")
   spacing_dir_list = glob(f"{XR_DIR}/*/drr*.md")
   im_dir_list = glob(f"{XR_DIR}/*/drr*.png")
   origin_dir_list.sort()
