@@ -17,18 +17,19 @@ class Tree:
         Minimum and maximum values to sample for length ratio between
         parent and child branches
   angle : list
-        Minimum and maximum values to sample for angle between child 
+        Minimum and maximum values to sample for angle between child
         branch and parent branch vectors
   num_extra_ends : int
         Number of additional bifurcation levels to generate
 
   Examples
   ========
+  >>> import pyssam
   >>> tree_class = pyssam.datasets.Tree()
-  >>> print(make_tree_landmarks().shape)
+  >>> print(tree_class.make_tree_landmarks().shape)
   (8, 3)
   >>> tree_class = Tree(num_extra_ends=2)
-  >>> print(make_tree_landmarks().shape)
+  >>> print(tree_class.make_tree_landmarks().shape)
   (32, 3)
   """
 
@@ -174,8 +175,8 @@ class Tree:
     return np.array(coords_out)
 
   def make_tree_landmarks(self) -> np.array:
-    """Make tree landmarks based on a baseline graph by randomly 
-    creating nodal coordinates 
+    """Make tree landmarks based on a baseline graph by randomly creating nodal
+    coordinates.
 
     Parameters
     ----------
@@ -184,7 +185,7 @@ class Tree:
     Returns
     -------
     landmarks : array_like
-        Landmarks for nodal coordinates on randomly created graph 
+        Landmarks for nodal coordinates on randomly created graph
         that can be used with shape model
     """
     tree_graph = self.make_tree()

@@ -66,20 +66,19 @@ class AppearanceFromXray:
 
   Examples
   ========
+  >>> import numpy as np
+  >>> import pyssam
   >>> num_samples = 5
   >>> num_pixels = 250
   >>> image_all = np.random.rand(num_samples, num_pixels, num_pixels)
   >>> origin_all = np.zeros((num_samples, 2))
   >>> spacing_all = np.ones((num_samples, 2))
-  >>> appearance_helper = pyssam.utils.AppearanceFromXray(
-  >>>   image_all, origin_all, spacing_all
-  >>> )
+  >>> appearance_helper = pyssam.utils.AppearanceFromXray(image_all, origin_all, spacing_all)
   using 2D coordinates for X-ray
   >>> print(appearance_helper.pixel_coordinates.shape)
   (5, 250, 2)
-  >>> appearance_helper = pyssam.utils.AppearanceFromXray(
-  >>>   np.random.rand(250,250), np.zeros(3), np.ones(3)
-  >>> )
+  >>> appearance_helper = pyssam.utils.AppearanceFromXray(np.random.rand(250,250), np.zeros(3), np.ones(3))
+  using 3D coordinates for XR
   >>> print(appearance_helper.pixel_coordinates.shape)
   (1, 250, 3)
   """

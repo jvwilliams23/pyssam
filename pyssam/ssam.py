@@ -23,10 +23,12 @@ class SSAM(StatisticalModelBase):
 
   Examples
   ========
+  >>> import numpy as np
+  >>> import pyssam
   >>> num_samples = 5
   >>> num_landmarks = 10
   >>> landmarks = np.random.normal(size=(num_samples, num_landmarks, 3))
-  >>> appearances = np.random.normal(size=(num_samples, num_landmarks, 3))
+  >>> appearances = np.random.normal(size=(num_samples, num_landmarks))
   >>> ssam = pyssam.SSAM(landmarks, appearances)
   >>> print(ssam.shape_appearance_columns.shape)
   (5, 40)

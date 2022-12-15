@@ -19,12 +19,14 @@ class SAM(StatisticalModelBase):
 
   Examples
   ========
+  >>> import numpy as np
+  >>> import pyssam
   >>> num_samples = 5
   >>> num_landmarks = 10
-  >>> appearances = np.random.normal(size=(num_samples, num_landmarks, 3))
+  >>> appearances = np.random.normal(size=(num_samples, num_landmarks))
   >>> sam = pyssam.SAM(appearances)
   >>> print(sam.appearance_scale.shape)
-  (5, 10)
+  (5, 10, 1)
   >>> print(sam.compute_dataset_mean().shape)
   (10,)
   """

@@ -47,11 +47,13 @@ class StatisticalModelBase(ABC):
 
     Examples
     ========
+    >>> import numpy as np
+    >>> import pyssam
     >>> landmarks_in = np.random.uniform(0, 100, size=(5, 100, 3))
     >>> ssm = pyssam.SSM(landmarks_in)
     >>> scaled_landmarks = ssm.scale_dataset(landmarks_in)
-    >>> print(scaled_landmarks.mean(), scaled_landmarks.std())
-    0 1
+    >>> print(abs(round(scaled_landmarks.mean(), 5)), round(scaled_landmarks.std(), 5))
+    0.0 1.0
     """
     dataset = self._check_data_shape(dataset)
     aligned_dataset = dataset - dataset.mean(axis=1)[:, np.newaxis]
