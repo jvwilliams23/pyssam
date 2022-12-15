@@ -150,59 +150,5 @@ class TestSSM(unittest.TestCase):
     else:
       AssertionError(f"SSM._check_data_shape not recognising input with ndim = {dataset_ssm.ndim}")
 
-class TestSSAM(unittest.TestCase):
-  def test_morph_model(self):
-    num_repititions = 10
-    for _ in range(0, num_repititions):
-      num_samples = 100
-      tree_class = pyssam.datasets.Tree(num_extra_ends=1)
-      landmark_coordinates = np.array(
-        [tree_class.make_tree_landmarks() for i in range(0, num_samples)]
-      )
-      appearance = np.random.normal(size=(num_samples, landmark_coordinates.shape[1]))
-      appearance /= appearance.std(axis=0)
-
-      ssam_obj = pyssam.SSAM(landmark_coordinates, appearance)
-      ssam_obj.create_pca_model(ssam_obj.shape_appearance_columns)
-      mean_shape_columnvector = ssam_obj.compute_dataset_mean()
-      mean_shape = mean_shape_columnvector.reshape(-1, 4)
-      
-      test_shape_columnvec = (
-        landmark_coordinates[0] - landmark_coordinates[0].mean(axis=0)
-      )
-      test_shape_columnvec /= test_shape_columnvec.std()
-      test_shape_columnvec = np.hstack((test_shape_columnvec, appearance[0][:, None])).reshape(-1)
-      test_params = (
-        np.dot(
-          (test_shape_columnvec - mean_shape_columnvector),
-          ssam_obj.pca_model_components.T,
-        )
-        / ssam_obj.std
-      )
-
-      # we get some issue with large shape parameters of modes that contribute
-      # very small variance. We remove these temporarily to avoid interfering
-      # with our test
-      relevant_parameters = test_params[
-        ssam_obj.pca_object.explained_variance_ratio_ > 0.01
-      ]
-      # shape parameters should generally be < 3 times the mode standard deviation
-      # check all parameters below 5 (5 instead of 3 to be conservative)
-      assert np.all(abs(relevant_parameters) < 5), (
-        f"shape parameters too high (max {abs(relevant_parameters).max()}), "
-        f"may be scaling issue {abs(relevant_parameters)}"
-      )
-
-      morphed_test_shape = ssam_obj.morph_model(
-        mean_shape_columnvector, ssam_obj.pca_model_components, test_params
-      )
-
-      assert np.allclose(
-        test_shape_columnvec, morphed_test_shape
-      ), (
-        "reconstructed shape not close to landmarks "
-        f"mean difference = {np.mean(test_shape_columnvec - morphed_test_shape)}"
-      )
-
 if __name__ == "__main__":
   unittest.main()
