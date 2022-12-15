@@ -11,16 +11,20 @@ IMAGE_DATASET = np.random.rand(NUM_SAMPLES, NUM_PIXELS, NUM_PIXELS)
 IMAGE_SPACING = np.ones((NUM_SAMPLES, 2))
 IMAGE_ORIGIN = np.zeros((NUM_SAMPLES, 2))
 
+
 class TestAppearanceFromXray(unittest.TestCase):
   def test_compute_landmark_density_shape(self):
-    """Test function throws error when landmarks have incompatible spatial dimensions"""
+    """Test function throws error when landmarks have incompatible spatial
+    dimensions."""
     appearance_helper = pyssam.utils.AppearanceFromXray(
       IMAGE_DATASET, IMAGE_ORIGIN, IMAGE_SPACING
     )
     _test_landmarks = np.random.rand(NUM_LANDMARKS, 3)
-    try: 
+    try:
       appearance_helper.compute_landmark_density(
-        _test_landmarks, IMAGE_DATASET[0], appearance_helper.pixel_coordinates[0]
+        _test_landmarks,
+        IMAGE_DATASET[0],
+        appearance_helper.pixel_coordinates[0],
       )
     except AssertionError:
       pass
@@ -30,7 +34,7 @@ class TestAppearanceFromXray(unittest.TestCase):
       )
 
   def test_compute_landmark_density_scale(self):
-    """Test that output of function has 0 mean and unit standard deviation"""
+    """Test that output of function has 0 mean and unit standard deviation."""
     appearance_helper = pyssam.utils.AppearanceFromXray(
       IMAGE_DATASET, IMAGE_ORIGIN, IMAGE_SPACING
     )
@@ -38,16 +42,20 @@ class TestAppearanceFromXray(unittest.TestCase):
     appearance_values = appearance_helper.compute_landmark_density(
       _test_landmarks, IMAGE_DATASET[0], appearance_helper.pixel_coordinates[0]
     )
-    assert np.isclose(appearance_values.mean(), 0), f"mean {appearance_values.mean()} != 0"
-    assert np.isclose(appearance_values.std(), 1), f"std {appearance_values.mean()} != 1"
+    assert np.isclose(
+      appearance_values.mean(), 0
+    ), f"mean {appearance_values.mean()} != 0"
+    assert np.isclose(
+      appearance_values.std(), 1
+    ), f"std {appearance_values.mean()} != 1"
 
   def test_img_ndim(self):
-    """Test to check that class should not work with img.ndim != 2"""
+    """Test to check that class should not work with img.ndim != 2."""
     appearance_helper = pyssam.utils.AppearanceFromXray(
       IMAGE_DATASET, IMAGE_ORIGIN, IMAGE_SPACING
     )
     _test_landmarks = np.random.rand(NUM_LANDMARKS, 2)
-    try: 
+    try:
       appearance_helper.compute_landmark_density(
         _test_landmarks, IMAGE_DATASET, appearance_helper.pixel_coordinates[0]
       )
@@ -59,7 +67,8 @@ class TestAppearanceFromXray(unittest.TestCase):
       )
 
   def test_work_with_one_input(self):
-    """Test to check no crashes when initialising AppearanceFromXray on 1 sample (not whole dataset)"""
+    """Test to check no crashes when initialising AppearanceFromXray on 1
+    sample (not whole dataset)"""
     appearance_helper = pyssam.utils.AppearanceFromXray(
       IMAGE_DATASET[0], IMAGE_ORIGIN[0], IMAGE_SPACING[0]
     )
@@ -69,39 +78,35 @@ class TestAppearanceFromXray(unittest.TestCase):
     )
 
   def test_img_shape(self):
-    """Test to check that class should not work with non-square image"""
-    _image_dataset = np.random.rand(NUM_SAMPLES, NUM_PIXELS//2, NUM_PIXELS)
-    try: 
+    """Test to check that class should not work with non-square image."""
+    _image_dataset = np.random.rand(NUM_SAMPLES, NUM_PIXELS // 2, NUM_PIXELS)
+    try:
       appearance_helper = pyssam.utils.AppearanceFromXray(
         _image_dataset, IMAGE_ORIGIN, IMAGE_SPACING
       )
     except AssertionError:
       pass
     else:
-      raise AssertionError(
-        "Assertion to check shape of image not recognised"
-      )
+      raise AssertionError("Assertion to check shape of image not recognised")
 
   def test_all_landmark_density(self):
-    """Test to check output of all_landmark_density is fine with expected behaviour"""
+    """Test to check output of all_landmark_density is fine with expected
+    behaviour."""
     appearance_helper = pyssam.utils.AppearanceFromXray(
       IMAGE_DATASET, IMAGE_ORIGIN, IMAGE_SPACING
     )
     _test_landmarks = np.random.rand(NUM_SAMPLES, NUM_LANDMARKS, 2)
-    appearance_helper.all_landmark_density(
-      _test_landmarks
-    )
+    appearance_helper.all_landmark_density(_test_landmarks)
 
   def test_all_landmark_density_landmark_assertions(self):
-    """Test to check output of all_landmark_density is fine with expected behaviour"""
+    """Test to check output of all_landmark_density is fine with expected
+    behaviour."""
     appearance_helper = pyssam.utils.AppearanceFromXray(
       IMAGE_DATASET, IMAGE_ORIGIN, IMAGE_SPACING
     )
     _test_landmarks = np.random.rand(NUM_SAMPLES, NUM_LANDMARKS, 3)
     try:
-      appearance_helper.all_landmark_density(
-        _test_landmarks
-      )
+      appearance_helper.all_landmark_density(_test_landmarks)
     except AssertionError:
       pass
     else:
@@ -110,7 +115,8 @@ class TestAppearanceFromXray(unittest.TestCase):
       )
 
   def test_origin_shape_assertions(self):
-    """Test to check output of all_landmark_density is fine with expected behaviour"""
+    """Test to check output of all_landmark_density is fine with expected
+    behaviour."""
     _test_origin = np.zeros((NUM_SAMPLES, 3))
     try:
       appearance_helper = pyssam.utils.AppearanceFromXray(
@@ -124,7 +130,8 @@ class TestAppearanceFromXray(unittest.TestCase):
       )
 
   def test_spacing_shape_assertions(self):
-    """Test to check output of all_landmark_density is fine with expected behaviour"""
+    """Test to check output of all_landmark_density is fine with expected
+    behaviour."""
     _test_spacing = np.zeros((NUM_SAMPLES, 3))
     try:
       appearance_helper = pyssam.utils.AppearanceFromXray(
@@ -136,6 +143,7 @@ class TestAppearanceFromXray(unittest.TestCase):
       raise AssertionError(
         "Assertion failed to recognise shape of origin and spacing not equal"
       )
-    
+
+
 if __name__ == "__main__":
   unittest.main()
