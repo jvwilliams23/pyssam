@@ -15,7 +15,7 @@ these complex datasets across a population.
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: API:
+   :caption: API documentation:
 
    modules
 
