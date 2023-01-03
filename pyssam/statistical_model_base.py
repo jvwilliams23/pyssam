@@ -236,11 +236,6 @@ class StatisticalModelBase(ABC):
     required_mode_number = np.where(
       np.cumsum(pca.explained_variance_ratio_) > desired_variance
     )[0][0]
-    print(
-      f"Reduced to {required_mode_number} components "
-      f"from {len(pca.explained_variance_ratio_)} "
-      f"for {desired_variance*100}% variation"
-    )
 
     return pca, required_mode_number
 
