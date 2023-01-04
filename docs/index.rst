@@ -48,7 +48,8 @@ For modelling lung lobes, we have also used an automatic algorithm detailed by
 provided here as it has many task-specific parameters.
 
 A script for manually landmarking an input shape is given in ``scripts/click_landmarking.py``.
-This uses ``vedo`` to visualise an input mesh and create landmarks by left click and pressing "c".
+This uses ``vedo`` (`repository here <https://github.com/marcomusy/vedo>`_) to visualise an 
+input mesh and create landmarks by left click and pressing "c".
 The aim of this script is to provide a simple way to landmark meshes before progressing to more advanced 
 automatic algorithms.
 
