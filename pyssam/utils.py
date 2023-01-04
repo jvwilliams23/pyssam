@@ -3,7 +3,6 @@
 from warnings import warn
 
 import numpy as np
-from skimage.color import rgb2gray
 from skimage.io import imread
 
 __all__ = ["euclidean_distance", "loadXR", "AppearanceFromXray"]
@@ -42,8 +41,7 @@ def loadXR(file) -> np.ndarray:
   grayscale_image : array_like
       Pixel values as grayscale with range [0:1].
   """
-  grayscale_image = rgb2gray(imread(file))
-  grayscale_image /= 255
+  grayscale_image = imread(file, as_gray=True)
   return grayscale_image
 
 
