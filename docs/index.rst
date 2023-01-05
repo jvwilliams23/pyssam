@@ -19,8 +19,11 @@ these complex datasets across a population.
 
    modules
 
+Getting Started
+---------------
+
 Installation
-------------
+^^^^^^^^^^^^
 This repository is currently not listed on PyPi. Therefore, to install one must do ::
 
    pip install numpy scikit_learn scikit-image networkx
@@ -34,6 +37,20 @@ To check the package is installed properly can be done by typing the following
 in a bash terminal ::
 
    python -c "import pyssam ; print(pyssam.SSAM.__doc__)"
+
+Tutorials
+^^^^^^^^^
+Three Jupyter notebooks are provided that give an overview of how to use pyssam for 
+statistical shape and/or appearance modelling.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorials
+   :hidden:
+
+   tutorial/ssm_example.ipynb
+   tutorial/sam_example.ipynb
+   tutorial/ssam_example.ipynb
 
 Extending to new datasets
 -------------------------
@@ -52,14 +69,5 @@ This uses ``vedo`` (`repository here <https://github.com/marcomusy/vedo>`_) to v
 input mesh and create landmarks by left click and pressing "c".
 The aim of this script is to provide a simple way to landmark meshes before progressing to more advanced 
 automatic algorithms.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Tutorials:
-
-   tutorial/ssm_example.ipynb
-   tutorial/sam_example.ipynb
-   tutorial/ssam_example.ipynb
-
 
 
