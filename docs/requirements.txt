@@ -1,4 +1,3 @@
-ipykernel
 nbsphinx
 numpy>=1.23
 scikit_learn==1.2.0
