@@ -1,16 +1,16 @@
 pyssam package
 ==============
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   pyssam.datasets
-
 Submodules
 ----------
+
+pyssam.datasets module
+----------------------
+
+.. automodule:: pyssam.datasets
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 pyssam.statistical\_model\_base module
 --------------------------------------

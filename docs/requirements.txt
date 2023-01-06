@@ -1,3 +1,7 @@
 ipykernel
 nbsphinx
+numpy
+scikit_learn
+scikit_image
+networkx
 
