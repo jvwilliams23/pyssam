@@ -12,6 +12,30 @@ class StatisticalModelBase(ABC):
   """Abstract base class for statistical model."""
 
   def landmark_data_to_column(self, landmark_array):
+    """Reduce an containing spatial information on landmarks in cartesian 
+    coordinates to essentially a set of stacked column-vectors. 
+    Remove any array dimensions with only one size e.g. (1, 1000, 3) -> (3000,)
+    
+    Parameters
+    ----------
+    landmark_array : array_like
+        Landmarks spatial coordinates with 2 or 3 dimensions. The final dimension
+        should size of e.g. 3 for coordinates in 3D space.
+    
+    Returns
+    -------
+    reduced_array : array_like
+        Landmarks where the N-dimensional array is collapsed to N-1 dimensions.
+
+    Examples
+    ========
+    >>> import numpy as np
+    >>> import pyssam
+    >>> landmarks_in = np.random.uniform(0, 100, size=(5, 100, 3))
+    >>> ssm = pyssam.SSM(landmarks_in)
+    >>> print(ssm.landmark_data_to_column(landmarks_in).shape)
+    (5, 300)
+    """
     num_data_features = landmark_array.shape[-1]
     reduced_array = landmark_array.reshape(
       -1, self.num_landmarks * num_data_features
@@ -20,6 +44,10 @@ class StatisticalModelBase(ABC):
 
   @property
   def num_landmarks(self):
+    """
+    Property for number of landmarks in a shape model entry. 
+    Should set by default in model class, e.g. in pyssam.SSM. 
+    """
     return self._num_landmarks
 
   @num_landmarks.setter
