@@ -1,3 +1,7 @@
 ipykernel
 nbsphinx
+numpy>=1.23
+scikit_learn==1.2.0
+scikit_image==0.19.2
+networkx==2.5
 
