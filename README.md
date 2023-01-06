@@ -1,5 +1,7 @@
 # PYthon Statistical Shape and Appearance Modelling (pyssam)
 
+[![DOI](https://zenodo.org/badge/48445365.svg)](https://zenodo.org/badge/latestdoi/48445365)
+
 Welcome to **pyssam**, a Python library for statistical modelling of biomedical shape and appearance.
 
 
