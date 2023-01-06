@@ -1,0 +1,15 @@
+{
+    "description": "<p>First release with zenodo json</p>", 
+    "upload_type": "software", 
+    "creators": [
+        {
+            "name": "Josh Williams"
+        }, 
+        {
+            "name": "Ali Ozel"
+        },
+        {
+            "name": "Uwe Wolfram"
+        }
+    ]
+}
