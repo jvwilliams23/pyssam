@@ -112,10 +112,6 @@ class Tree:
     """Make a tree structure based on a baseline graph by randomly creating
     nodal coordinates (also determined by angle, length and length_ratio)
 
-    Parameters
-    ----------
-    None
-
     Returns
     -------
     graph : nx.DiGraph
@@ -168,6 +164,7 @@ class Tree:
     Parameters
     ----------
     graph : nx.DiGraph
+        Graph with "position" entry in nodal attributes
     """
     coords_out = []
     for node_i in graph:
@@ -177,10 +174,6 @@ class Tree:
   def make_tree_landmarks(self) -> np.array:
     """Make tree landmarks based on a baseline graph by randomly creating nodal
     coordinates.
-
-    Parameters
-    ----------
-    None
 
     Returns
     -------
