@@ -97,6 +97,43 @@ class TestSSM(unittest.TestCase):
         f"(should not be for {ssm_obj.desired_variance} variance)"
       )
 
+  def test_fit_model_parameters_all_modes(self):
+    num_repititions = 10
+    for _ in range(0, num_repititions):
+      num_samples = 50
+      tree_class = pyssam.datasets.Tree(num_extra_ends=1)
+      landmark_coordinates = np.array(
+        [tree_class.make_tree_landmarks() for i in range(0, num_samples)]
+      )
+
+      ssm_obj = pyssam.SSM(landmark_coordinates)
+      ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale, desired_variance=0.7)
+      # find 
+      target_shape = ssm_obj.landmarks_columns_scale[0]
+      model_parameters = ssm_obj.fit_model_parameters(target_shape, ssm_obj.pca_model_components)
+      dataset_mean = ssm_obj.compute_dataset_mean()
+      morphed_shape = ssm_obj.morph_model(dataset_mean, ssm_obj.pca_model_components, model_parameters)
+      error = abs(target_shape - morphed_shape)
+      assert np.isclose(error.mean(), 0), f"error is non-zero ({error.mean()})"
+
+  def test_fit_model_parameters_reduced_modes(self):
+    num_repititions = 10
+    for _ in range(0, num_repititions):
+      num_samples = 50
+      tree_class = pyssam.datasets.Tree(num_extra_ends=1)
+      landmark_coordinates = np.array(
+        [tree_class.make_tree_landmarks() for i in range(0, num_samples)]
+      )
+
+      ssm_obj = pyssam.SSM(landmark_coordinates)
+      ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale, desired_variance=0.7)
+      target_shape = ssm_obj.landmarks_columns_scale[0]
+      model_parameters = ssm_obj.fit_model_parameters(target_shape, ssm_obj.pca_model_components, num_modes=2)
+      dataset_mean = ssm_obj.compute_dataset_mean()
+      morphed_shape = ssm_obj.morph_model(dataset_mean, ssm_obj.pca_model_components, model_parameters, num_modes=2)
+      error = abs(target_shape - morphed_shape)
+      assert not np.isclose(error.mean(), 0), f"error is zero ({error.mean()}), but should be non-zero"
+
   def test_desired_variance_bounds(self):
     tree_class = pyssam.datasets.Tree(num_extra_ends=0)
     num_samples = 10

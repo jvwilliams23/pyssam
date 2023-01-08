@@ -12,16 +12,16 @@ class StatisticalModelBase(ABC):
   """Abstract base class for statistical model."""
 
   def landmark_data_to_column(self, landmark_array):
-    """Reduce an containing spatial information on landmarks in cartesian 
-    coordinates to essentially a set of stacked column-vectors. 
-    Remove any array dimensions with only one size e.g. (1, 1000, 3) -> (3000,)
-    
+    """Reduce an containing spatial information on landmarks in cartesian
+    coordinates to essentially a set of stacked column-vectors. Remove any
+    array dimensions with only one size e.g. (1, 1000, 3) -> (3000,)
+
     Parameters
     ----------
     landmark_array : array_like
         Landmarks spatial coordinates with 2 or 3 dimensions. The final dimension
         should size of e.g. 3 for coordinates in 3D space.
-    
+
     Returns
     -------
     reduced_array : array_like
@@ -44,9 +44,9 @@ class StatisticalModelBase(ABC):
 
   @property
   def num_landmarks(self):
-    """
-    Property for number of landmarks in a shape model entry. 
-    Should set by default in model class, e.g. in pyssam.SSM. 
+    """Property for number of landmarks in a shape model entry.
+
+    Should set by default in model class, e.g. in pyssam.SSM.
     """
     return self._num_landmarks
 
@@ -172,10 +172,48 @@ class StatisticalModelBase(ABC):
     # save desired_variance as global variable to help post-processing and debugging
     self.desired_variance = desired_variance
 
+  def fit_model_parameters(
+    self,
+    input_sample,
+    pca_model_components: np.ndarray,
+    num_modes: int = 1000000,
+  ) -> np.array:
+    """Find the model parameters which best match the given input_sample with
+    the trained pca model. Assumes that the shape can be described by
+    input_sample \approx dataset_mean + model_modes \cdot model_std.
+
+    Parameters
+    ----------
+    input_sample : array_like
+        Column-vector representing landmark information (e.g. shape, appearance)
+    pca_model_components : array_like
+        eigenvectors of covariance matrix, obtain by PCA.
+    num_modes: int
+        Number of principal components (or `modes') to include in model
+        to morph. By default this is set to a high number to set all modes
+        as included.
+
+    Returns
+    -------
+    model_parameters : array_like
+        model parameters used to perturb each principal component by some amount
+        1D array, where values should all be within +/- 3.
+    """
+    dataset_mean = self.compute_dataset_mean()
+    model_parameters = (
+      np.dot(
+        (input_sample - dataset_mean),
+        pca_model_components[:num_modes].T,
+      )
+      / self.std[:num_modes]
+    )
+    model_parameters = np.where(abs(model_parameters) < 3, model_parameters, 0)
+    return model_parameters
+
   def morph_model(
     self,
     mean_dataset_columnvector: np.array,
-    pca_model_components: np.array,
+    pca_model_components: np.ndarray,
     model_parameters: np.array,
     num_modes: int = 1000000,
   ) -> np.array:
