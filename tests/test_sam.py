@@ -79,13 +79,7 @@ class TestSAM(unittest.TestCase):
 
     # run test for all cases in database
     for test_appearance in APPEARANCE:
-      test_params = (
-        np.dot(
-          (test_appearance - mean_appearance),
-          sam_obj.pca_model_components.T,
-        )
-        / sam_obj.std
-      )
+      test_params = sam_obj.fit_model_parameters(test_appearance, sam_obj.pca_model_components)
 
       # we get some issue with large shape parameters of modes that contribute
       # very small variance. We remove these temporarily to avoid interfering

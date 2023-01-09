@@ -23,13 +23,7 @@ class TestSSM(unittest.TestCase):
         landmark_coordinates[0] - landmark_coordinates[0].mean(axis=0)
       ).reshape(-1)
       test_shape_columnvec /= test_shape_columnvec.std()
-      test_params = (
-        np.dot(
-          (test_shape_columnvec - mean_shape_columnvector),
-          ssm_obj.pca_model_components.T,
-        )
-        / ssm_obj.std
-      )
+      test_params = ssm_obj.fit_model_parameters(test_shape_columnvec, ssm_obj.pca_model_components)
 
       # we get some issue with large shape parameters of modes that contribute
       # very small variance. We remove these temporarily to avoid interfering
@@ -71,13 +65,7 @@ class TestSSM(unittest.TestCase):
         landmark_coordinates[0] - landmark_coordinates[0].mean(axis=0)
       ).reshape(-1)
       test_shape_columnvec /= test_shape_columnvec.std()
-      test_params = (
-        np.dot(
-          (test_shape_columnvec - mean_shape_columnvector),
-          ssm_obj.pca_model_components.T,
-        )
-        / ssm_obj.std
-      )
+      test_params = ssm_obj.fit_model_parameters(test_shape_columnvec, ssm_obj.pca_model_components)
 
       # we get some issue with large shape parameters of modes that contribute
       # very small variance. We remove these temporarily to avoid interfering
@@ -108,9 +96,11 @@ class TestSSM(unittest.TestCase):
 
       ssm_obj = pyssam.SSM(landmark_coordinates)
       ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale, desired_variance=0.7)
-      # find 
       target_shape = ssm_obj.landmarks_columns_scale[0]
       model_parameters = ssm_obj.fit_model_parameters(target_shape, ssm_obj.pca_model_components)
+      model_parameters = np.where(model_parameters < 5, model_parameters, 3)
+      model_parameters = np.where(model_parameters > -5, model_parameters, -3)
+      
       dataset_mean = ssm_obj.compute_dataset_mean()
       morphed_shape = ssm_obj.morph_model(dataset_mean, ssm_obj.pca_model_components, model_parameters)
       error = abs(target_shape - morphed_shape)

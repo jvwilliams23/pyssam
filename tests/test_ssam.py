@@ -80,13 +80,7 @@ class TestSSAM(unittest.TestCase):
 
     # run test for all cases in database
     for test_shape_appearance_column in ssam_obj.shape_appearance_columns:
-      test_params = (
-        np.dot(
-          (test_shape_appearance_column - mean_shape_appearance),
-          ssam_obj.pca_model_components.T,
-        )
-        / ssam_obj.std
-      )
+      test_params = ssam_obj.fit_model_parameters(test_shape_appearance_column, ssam_obj.pca_model_components)
 
       # we get some issue with large shape parameters of modes that contribute
       # very small variance. We remove these temporarily to avoid interfering

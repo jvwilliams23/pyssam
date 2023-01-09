@@ -207,7 +207,6 @@ class StatisticalModelBase(ABC):
       )
       / self.std[:num_modes]
     )
-    model_parameters = np.where(abs(model_parameters) < 3, model_parameters, 0)
     return model_parameters
 
   def morph_model(
