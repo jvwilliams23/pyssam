@@ -24,10 +24,9 @@ Getting Started
 
 Installation
 ^^^^^^^^^^^^
-This repository is currently not listed on PyPi. Therefore, to install one must do ::
+You can install pyssam with pip as ::
 
-   pip install numpy scikit_learn scikit-image networkx
-   python setup.py install
+   pip install pyssam
 
 Several jupyter notebooks also exist, which require::
 

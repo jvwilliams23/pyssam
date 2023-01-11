@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyssam"
-version = "0.1.3"
+version = "0.1.2"
 authors = [
   { name="Josh Williams" },
 ]

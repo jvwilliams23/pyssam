@@ -10,9 +10,7 @@ Welcome to **pyssam**, a Python library for statistical modelling of biomedical 
 pyssam can be installed using
 
 ```bash
-git clone https://github.com/jvwilliams23/pyssam.git
-cd pyssam
-python setup.py install
+pip install pyssam
 ```
 
 ## Documentation
