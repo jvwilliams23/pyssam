@@ -1,4 +1,4 @@
-# PYthon Statistical Shape and Appearance Modelling (pyssam)
+# Python Statistical Shape and Appearance Modelling (pyssam)
 
 [![DOI](https://zenodo.org/badge/576337077.svg)](https://zenodo.org/badge/latestdoi/576337077)
 
