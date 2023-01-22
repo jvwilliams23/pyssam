@@ -26,7 +26,7 @@ def read_lung_data():
 class TestSSM(unittest.TestCase):
   def test_morph_model(self):
     num_repititions = 10
-    for _ in range(0, num_repititions):
+    for test_sample_id in range(0, num_repititions):
       landmark_coordinates = read_lung_data()
 
       ssm_obj = pyssam.SSM(landmark_coordinates)
@@ -34,7 +34,7 @@ class TestSSM(unittest.TestCase):
       mean_shape_columnvector = ssm_obj.compute_dataset_mean()
       mean_shape = mean_shape_columnvector.reshape(-1, 3)
 
-      test_sample_id = np.random.randint(0, len(landmark_coordinates))
+      # test_sample_id = np.random.randint(0, len(landmark_coordinates))
       test_shape_columnvec = (
         landmark_coordinates[test_sample_id] - landmark_coordinates[test_sample_id].mean(axis=0)
       ).reshape(-1)
@@ -64,7 +64,7 @@ class TestSSM(unittest.TestCase):
 
   def test_morph_model_reduced_dimension(self):
     num_repititions = 10
-    for _ in range(0, num_repititions):
+    for test_sample_id in range(0, num_repititions):
       landmark_coordinates = read_lung_data()
 
       ssm_obj = pyssam.SSM(landmark_coordinates)
@@ -73,7 +73,7 @@ class TestSSM(unittest.TestCase):
       mean_shape_columnvector = ssm_obj.compute_dataset_mean()
       mean_shape = mean_shape_columnvector.reshape(-1, 3)
 
-      test_sample_id = np.random.randint(0, len(landmark_coordinates))
+      # test_sample_id = np.random.randint(0, len(landmark_coordinates))
       test_shape_columnvec = (
         landmark_coordinates[test_sample_id] - landmark_coordinates[test_sample_id].mean(axis=0)
       ).reshape(-1)
@@ -100,13 +100,12 @@ class TestSSM(unittest.TestCase):
 
   def test_fit_model_parameters_all_modes(self):
     num_repititions = 10
-    for _ in range(0, num_repititions):
+    for test_sample_id in range(0, num_repititions):
       landmark_coordinates = read_lung_data()
 
       ssm_obj = pyssam.SSM(landmark_coordinates)
       ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale, desired_variance=0.7)
 
-      test_sample_id = np.random.randint(0, len(landmark_coordinates))
       target_shape = ssm_obj.landmarks_columns_scale[test_sample_id]
       model_parameters = ssm_obj.fit_model_parameters(target_shape, ssm_obj.pca_model_components)
       model_parameters = np.where(model_parameters < 5, model_parameters, 3)
@@ -115,17 +114,16 @@ class TestSSM(unittest.TestCase):
       dataset_mean = ssm_obj.compute_dataset_mean()
       morphed_shape = ssm_obj.morph_model(dataset_mean, ssm_obj.pca_model_components, model_parameters)
       error = abs(target_shape - morphed_shape)
-      assert np.isclose(error.mean(), 0), f"error is non-zero ({error.mean()})"
+      assert np.isclose(error.mean(), 0), f"error is non-zero ({error.mean()}) sample {test_sample_id}"
 
   def test_fit_model_parameters_reduced_modes(self):
     num_repititions = 10
-    for _ in range(0, num_repititions):
+    for test_sample_id in range(0, num_repititions):
       landmark_coordinates = read_lung_data()
 
       ssm_obj = pyssam.SSM(landmark_coordinates)
       ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale, desired_variance=0.7)
 
-      test_sample_id = np.random.randint(0, len(landmark_coordinates))
       target_shape = ssm_obj.landmarks_columns_scale[test_sample_id]
       model_parameters = ssm_obj.fit_model_parameters(target_shape, ssm_obj.pca_model_components, num_modes=2)
       dataset_mean = ssm_obj.compute_dataset_mean()
