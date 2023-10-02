@@ -54,6 +54,74 @@ def mahalanobis_distance(x, y):
 
   return np.sqrt(np.sum(np.dot(delta, VI) * delta, axis=-1))
 
+def adapt_landmark_network(
+    surface_points_orig, graph
+):
+  # optimisation parameters for adaptation
+  lrate = (1, 0.001)  # (0.5, 0.01)
+  sigma = (0.5, 0.001)
+  t_cutoff = 300
+  t = np.linspace(0, 1, t_cutoff)
+  lrate = lrate[0] * (lrate[1] / lrate[0]) ** t
+  sigma = sigma[0] * (sigma[1] / sigma[0]) ** t
+  
+  distance_metric = euclidean_distance
+  surface_points = shuffle(surface_points_orig)
+  graph_positions_orig = _graph_nodes_to_positions(graph)
+  graph_positions_adapt = graph_positions_orig.clone()
+  node_list = list(graph.nodes)
+  # TODO: add node attribute, which gives mapping from node to numpy index
+
+  # TODO: initialise firing_values
+
+  for i, surface_point_i in enumerate(surface_points):
+    # find best match (nearest node to surface point)
+    nearest_node_index = np.argmin(distance_metric(graph_positions_adapt, surface_point_i))
+    nearest_node = node_list[nearest_node_index]
+
+    # morph neighbors before nearest_node, since their movement depends on distance to nearest_node
+    neighbor_edges = graph.out_edges(nearest_node)
+    for edge_j in neighbor_edges:
+      neighbor_node_j = edge_j[1]
+
+      graph.nodes[neighbor_node_j]["position"] = _morph_node(
+        surface_point_i=surface_point_i,
+        nearest_node=nearest_node,
+        node_to_morph=neighbor_node_j,
+        kernel_width=sigma[graph.nodes[neighbor_node_j]["firing_value_counter"]],
+        learning_rate=lrate[graph.nodes[neighbor_node_j]["firing_value_counter"]]
+      )
+    
+    # morph nearest node
+    graph.nodes[nearest_node]["position"] = _morph_node(
+      surface_point_i=surface_point_i,
+      nearest_node=nearest_node,
+      node_to_morph=nearest_node,
+      kernel_width=sigma[graph.nodes[nearest_node]["firing_value_counter"]],
+      learning_rate=lrate[graph.nodes[nearest_node]["firing_value_counter"]]
+    )
+
+    # TODO: update numpy array at end (to avoid modifying graph_positions_adapt during loop)
+    # graph_positions_adapt[nearest_node_index] += lrate[graph.nodes[nearest_node]["firing_value_counter"]] * (surface_point_i - graph_positions_adapt[nearest_node_index])
+
+    # update firing_value_counter
+    graph = _update_firing_values(graph, nearest_node)
+
+    # check some cutoff
+  return graph
+
+def _rbf_kernel(distance, std_dev):
+  return np.exp(-distance**2.0 / (2 * std_dev ** 2.0))
+
+def _morph_node(surface_point_i, nearest_node, node_to_morph, kernel_width, learning_rate, distance_metric=euclidean_distance):
+  position = graph.nodes[node_to_morph]["position"]
+  distance_to_nearest = distance_metric(graph.nodes[nearest_node]["position"], graph.nodes[node_to_morph]["position"])
+  morph_kernel = _rbf_kernel(distance_to_nearest, kernel_width[graph.nodes[node_to_morph]["firing_value_counter"]])
+  direction = surface_point_i - position
+
+  position += learning_rate * morph_kernel * direction
+  return position
+
 def grow_landmark_network(
   surface_points_orig, activation_threshold=0.01
 ):
