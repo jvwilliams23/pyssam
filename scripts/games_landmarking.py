@@ -83,8 +83,6 @@ def grow_landmark_network(
 
   firing_value_threshold = _eval_firing_value(5, alpha=1.05, beta=3.33)
 
-  print("Beginning loop")
-  # while not round(average_distance_lm_to_surf, 1) <= threshold_average_dist_to_surf:
   for distance_metric in [euclidean_distance, mahalanobis_distance]:
     for i, surface_point_i in enumerate(surface_points):
       # find closest node to surface_point_i
@@ -126,7 +124,7 @@ def grow_landmark_network(
         connected_edges = list(graph.edges(nearest_node))
         for edge_j in connected_edges:
           node_j = edge_j[1]
-          firing_value_neighbor = 1 # TODO
+          firing_value_neighbor = graph.nodes[node_j]["firing_value"]
           position_node_j = graph.nodes[node_j]["position"]
           distance_nearest_to_neighbor = distance_metric(position_nearest_node, position_node_j)
           SIGMA = 0.42 # empirical parameter from Ferrarini et al.
@@ -141,12 +139,7 @@ def grow_landmark_network(
         graph.edges[edge_i]["age"] += 1
 
       # decrease firing value of best matching node and its neighbors
-      graph.nodes[nearest_node]["firing_value_counter"] += 1
-      graph.nodes[nearest_node]["firing_value"] = _eval_firing_value(graph.nodes[nearest_node]["firing_value_counter"], beta=3.33)
-      for edge_j in neighbor_edges:
-        node_neighbor = edge_j[1]
-        graph.nodes[node_neighbor]["firing_value_counter"] += 1
-        graph.nodes[node_neighbor]["firing_value"] = _eval_firing_value(graph.nodes[node_neighbor]["firing_value_counter"], beta=14.3)
+      graph = _update_firing_values(graph, nearest_node)
 
       # remove edges where age is above a cutoff
       graph = _check_remove_edge_age(graph)
@@ -166,6 +159,16 @@ def grow_landmark_network(
     graph_positions = _graph_nodes_to_positions(graph)
     average_distance_lm_to_surf = np.mean([euclidean_distance(graph_positions, surface_point_i).min() for surface_point_i in surface_points])
 
+  return graph
+
+def _update_firing_values(graph, nearest_node):
+  neighbor_edges = graph.out_edges(nearest_node)
+  graph.nodes[nearest_node]["firing_value_counter"] += 1
+  graph.nodes[nearest_node]["firing_value"] = _eval_firing_value(graph.nodes[nearest_node]["firing_value_counter"], beta=3.33)
+  for edge_j in neighbor_edges:
+    node_neighbor = edge_j[1]
+    graph.nodes[node_neighbor]["firing_value_counter"] += 1
+    graph.nodes[node_neighbor]["firing_value"] = _eval_firing_value(graph.nodes[node_neighbor]["firing_value_counter"], beta=14.3)
   return graph
 
 def _eval_firing_value(firing_value_counter, alpha=1.05, beta=3.33):
