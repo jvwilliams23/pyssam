@@ -21,7 +21,7 @@ def getInputs():
   )
   return parser.parse_args()
 
-def euclideanDist(x, y):
+def euclidean_distance(x, y):
   """
   Finds the euclidean distance between two arrays x, y.
   Calculated using pythagoras theorem
@@ -31,7 +31,7 @@ def euclideanDist(x, y):
   else:
     return np.sqrt(np.sum((x - y) ** 2, axis=1))
 
-def mahalanobisDist(x, y):
+def mahalanobis_distance(x, y):
   """
   Finds the mahalanobis distance between two arrays x, y
   Calculated based on the inverse covariance matrix of the two arrays
@@ -56,38 +56,6 @@ def mahalanobisDist(x, y):
     return 10000000
 
   return np.sqrt(np.sum(np.dot(delta, VI) * delta, axis=-1))
-
-
-def summandDist(
-  pointCloud, modelNodes, distance_metricFind, distance_metricSum=euclideanDist
-):
-  """
-  Returns the cumulative euclidean distance between
-  surface point and nearest node.
-  """
-  # -shorten variable names, consistent with syntax of the paper
-  # -surface_points = pointCloud
-  # -A = modelNodes
-  sumList = [
-    distance_metricSum(p_k, modelNodes[np.argmin(distance_metricFind(modelNodes, p_k))])
-    for i, p_k in enumerate(pointCloud)
-  ]
-
-  return sum(sumList), np.std(sumList), sumList
-
-def f_T(alpha=1.05, beta=3.33):
-  return 1 - (1 / alpha) * (1 - np.exp(-(alpha * 5) / beta))
-
-
-def f_s(t_counter, alpha_w=1.05, beta_w=3.33):
-  # -Firing value associated with s
-  return 1 - (1 / alpha_w) * (1 - np.exp(-(alpha_w * t_counter) / beta_w))
-
-
-def f_n(t_counter, alpha_n=1.05, beta_n=14.3):
-  # -Firing value associated with s's neighbors
-  return 1 - (1 / alpha_n) * (1 - np.exp(-(alpha_n * t_counter) / beta_n))
-
 
 def grow_landmark_network(
   surface_points_orig, activation_threshold=0.01
@@ -120,7 +88,7 @@ def grow_landmark_network(
   threshold_average_dist_to_surf = 5
   edge_age_threshold = 50  # edge age threshold
 
-  distance_metric = euclideanDist
+  distance_metric = euclidean_distance
 
   print("Beginning loop")
   initalRemoveCheck = 0
