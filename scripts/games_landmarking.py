@@ -70,9 +70,14 @@ def adapt_landmark_network(
   graph_positions_orig = _graph_nodes_to_positions(graph)
   graph_positions_adapt = graph_positions_orig.clone()
   node_list = list(graph.nodes)
-  # TODO: add node attribute, which gives mapping from node to numpy index
 
-  # TODO: initialise firing_values
+  for i, node_i in enumerate(graph.nodes):
+    # initialise firing values
+    graph.nodes[node_i]["firing_value_counter"] = 0
+    graph.nodes[node_i]["firing_value"] = _eval_firing_value(0, beta=3.33)
+    graph.nodes[node_i]["nearest"] = False
+    # add mapping from node to numpy index
+    graph.nodes[node_i]["numpy_index"] = i
 
   for i, surface_point_i in enumerate(surface_points):
     # find best match (nearest node to surface point)
