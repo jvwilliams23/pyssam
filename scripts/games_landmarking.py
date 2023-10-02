@@ -72,7 +72,6 @@ def grow_landmark_network(
   the subset of surrounding surface points best.
   """
   graph = nx.DiGraph()
-  graph.add_nodes_from([0, 1])
 
   # -Initialise - need to adjust A to remove matching nodes
   surface_points = shuffle(surface_points_orig)
@@ -82,12 +81,13 @@ def grow_landmark_network(
 
   if np.allclose(landmark_setA[0], landmark_setA[1]):
     exit()
-  graph.nodes[0]["position"] = landmark_setA[0]
-  graph.nodes[1]["position"] = landmark_setA[1]
+  graph.add_node(0, position=landmark_setA[0], firing_value_counter=0, firing_value=_eval_firing_value(0, beta=3.33), nearest=False)
+  graph.add_node(1, position=landmark_setA[1], firing_value_counter=0, firing_value=_eval_firing_value(0, beta=3.33), nearest=False)
   threshold_std_dev_dist_to_surf = 0.01  # Threshold accuracy
   threshold_average_dist_to_surf = 5
   edge_age_threshold = 50  # edge age threshold
 
+  firing_value_threshold = _eval_firing_value(5, alpha=1.05, beta=3.33)
   distance_metric = euclidean_distance
 
   print("Beginning loop")
@@ -99,7 +99,7 @@ def grow_landmark_network(
   # initialisation
 
   while not round(average_distance_lm_to_surf, 1) <= threshold_average_dist_to_surf:
-    for surface_point_i in surface_points:
+    for i, surface_point_i in enumerate(surface_points):
       # find closest node to surface_point_i
       graph_positions = _graph_nodes_to_positions(graph)
       distance_to_point_i = distance_metric(graph_positions, surface_point_i)
@@ -114,20 +114,21 @@ def grow_landmark_network(
 
       # create edge between best and second best matching node, set edge age = 0
       edge_i = (nearest_node, second_nearest_node)
-      # TODO: maybe need to check if edge exists
-      graph.add_edge(*edge_i)
-      graph.edges[edge_i]["age"] = 0
+      if not graph.has_edge(*edge_i):
+        graph.add_edge(*edge_i)
+        graph.edges[edge_i]["age"] = 0
       
-      # TODO
-      firing_value_nearest = 1
+      firing_value_nearest = graph.nodes[nearest_node]["firing_value"]
+      # after loop through all points, remove nodes never selected as best/nearest match
+      graph.nodes[nearest_node]["nearest"] = True
 
       # evaluate activation function for best matching node
       activation_value = np.exp(-distance_closest_node)
       # check if activtion less than cutoff.
-      if activation_value < activation_threshold: #TODO: and f_s < f_T
+      if (activation_value < activation_threshold) and (firing_value_nearest < firing_value_threshold):
         # add new node and connect to graph (grow graph)
         new_node = max(graph.nodes)+1
-        graph.add_node(new_node, position=(surface_point_i+position_nearest_node)/2)
+        graph.add_node(new_node, position=(surface_point_i+position_nearest_node)/2, firing_value_counter=0, firing_value=_eval_firing_value(0, beta=14.33), nearest=False)
         graph.add_edge(new_node, nearest_node, age=0)
         graph.add_edge(new_node, second_nearest_node, age=0)
         graph.remove_edge(nearest_node, second_nearest_node)
@@ -153,15 +154,27 @@ def grow_landmark_network(
         graph.edges[edge_i]["age"] += 1
 
       # decrease firing value of best matching node and its neighbors
+      graph.nodes[nearest_node]["firing_value_counter"] += 1
+      graph.nodes[nearest_node]["firing_value"] = _eval_firing_value(graph.nodes[nearest_node]["firing_value_counter"], beta=3.33)
+      for edge_j in neighbor_edges:
+        node_neighbor = edge_j[1]
+        graph.nodes[node_neighbor]["firing_value_counter"] += 1
+        graph.nodes[node_neighbor]["firing_value"] = _eval_firing_value(graph.nodes[node_neighbor]["firing_value_counter"], beta=14.3)
 
       # remove edges where age is above a cutoff
       graph = _check_remove_edge_age(graph)
 
       # remove isolated nodes
-      graph = graph.remove_nodes_from(nx.isolates(graph))
-      continue
+      graph.remove_nodes_from(list(nx.isolates(graph)))
+      print(i, graph.number_of_nodes(), graph.number_of_edges())
+    
+    graph_positions = _graph_nodes_to_positions(graph)
+    average_distance_lm_to_surf = np.sum([euclidean_distance(graph_positions, surface_point_i).min() for surface_point_i in surface_points])
 
   return graph
+
+def _eval_firing_value(firing_value_counter, alpha=1.05, beta=3.33):
+  return 1 - (1 / alpha) * (1 - np.exp(-(alpha * firing_value_counter) / beta))
 
 def _check_remove_edge_age(graph, age_cutoff=50):
   remove_edges = []
@@ -186,7 +199,7 @@ if __name__ == "__main__":
   # -importing loadcase name and other user args
   args = getInputs()
 
-  surface_points_orig = v.load(args.meshfile).points()[::10]
+  surface_points_orig = v.load(args.meshfile).points()[::30]
   # scale to min -1000 and max 1000. 
   # Should allow accuracy criteria to be consistent in different cases
   graph = grow_landmark_network(
