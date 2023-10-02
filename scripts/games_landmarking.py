@@ -1,9 +1,6 @@
 import argparse
-from copy import copy
-from glob import glob
 from random import choices
 from sys import exit
-from time import time
 
 import networkx as nx
 import numpy as np
