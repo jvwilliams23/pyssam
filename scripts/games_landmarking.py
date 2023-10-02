@@ -83,22 +83,12 @@ def grow_landmark_network(
     exit()
   graph.add_node(0, position=landmark_setA[0], firing_value_counter=0, firing_value=_eval_firing_value(0, beta=3.33), nearest=False)
   graph.add_node(1, position=landmark_setA[1], firing_value_counter=0, firing_value=_eval_firing_value(0, beta=3.33), nearest=False)
-  threshold_std_dev_dist_to_surf = 0.01  # Threshold accuracy
-  threshold_average_dist_to_surf = 5
-  edge_age_threshold = 50  # edge age threshold
 
   firing_value_threshold = _eval_firing_value(5, alpha=1.05, beta=3.33)
-  distance_metric = euclidean_distance
 
   print("Beginning loop")
-  initalRemoveCheck = 0
-  loopedPoints = 0
-  euclidean_dist_std_dev = 1.0
-  average_distance_lm_to_surf = 100.0
-
-  # initialisation
-
-  while not round(average_distance_lm_to_surf, 1) <= threshold_average_dist_to_surf:
+  # while not round(average_distance_lm_to_surf, 1) <= threshold_average_dist_to_surf:
+  for distance_metric in [euclidean_distance, mahalanobis_distance]:
     for i, surface_point_i in enumerate(surface_points):
       # find closest node to surface_point_i
       graph_positions = _graph_nodes_to_positions(graph)
