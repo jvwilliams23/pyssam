@@ -29,8 +29,8 @@ class GAMEsAlgorithm:
     # optimisation parameters for adaptation
     lrate = (1, 0.001)  # (0.5, 0.01)
     sigma = (0.5, 0.001)
-    t_cutoff = 300
-    t = np.linspace(0, 1, t_cutoff)
+    rate_decay_intervals = 300
+    t = np.linspace(0, 1, rate_decay_intervals)
     lrate = lrate[0] * (lrate[1] / lrate[0]) ** t
     sigma = sigma[0] * (sigma[1] / sigma[0]) ** t
     
@@ -209,13 +209,19 @@ class GAMEsAlgorithm:
 
     return graph
 
-  def _update_firing_values(self, graph, nearest_node):
+  def _update_firing_values(self, graph, nearest_node, cutoff_value=int(1e8)):
     neighbor_edges = graph.out_edges(nearest_node)
-    graph.nodes[nearest_node]["firing_value_counter"] += 1
+    if graph.nodes[nearest_node]["firing_value_counter"]+1 >= cutoff_value:
+      pass
+    else:
+      graph.nodes[nearest_node]["firing_value_counter"] += 1
     graph.nodes[nearest_node]["firing_value"] = self._eval_firing_value(graph.nodes[nearest_node]["firing_value_counter"], beta=3.33)
     for edge_j in neighbor_edges:
       node_neighbor = edge_j[1]
-      graph.nodes[node_neighbor]["firing_value_counter"] += 1
+      if graph.nodes[node_neighbor]["firing_value_counter"]+1 >= cutoff_value:
+        pass
+      else:
+        graph.nodes[node_neighbor]["firing_value_counter"] += 1
       graph.nodes[node_neighbor]["firing_value"] = self._eval_firing_value(graph.nodes[node_neighbor]["firing_value_counter"], beta=14.3)
     return graph
 
