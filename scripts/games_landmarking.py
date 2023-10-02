@@ -36,7 +36,7 @@ class GAMEsAlgorithm:
     
     distance_metric = euclidean_distance
     surface_points = shuffle(surface_points_orig)
-    graph_positions_orig = self._graph_nodes_to_positions(graph)
+    graph_positions_orig = GAMEsAlgorithm.graph_nodes_to_positions(graph)
     graph_positions_adapt = graph_positions_orig.copy()
     node_list = list(graph.nodes)
 
@@ -82,6 +82,11 @@ class GAMEsAlgorithm:
       graph = self._update_firing_values(graph, nearest_node)
 
       # check some cutoff
+
+    # final evaluation
+    graph_positions = GAMEsAlgorithm.graph_nodes_to_positions(graph)
+    average_distance_lm_to_surf = np.mean([euclidean_distance(graph_positions, surface_point_i).min() for surface_point_i in surface_points])
+    print(f"adapt accuracy is {average_distance_lm_to_surf}")
     return graph
 
   def _rbf_kernel(self, distance, std_dev):
@@ -128,7 +133,7 @@ class GAMEsAlgorithm:
     for distance_metric in [euclidean_distance, self.mahalanobis_distance]:
       for i, surface_point_i in enumerate(surface_points):
         # find closest node to surface_point_i
-        graph_positions = self._graph_nodes_to_positions(graph)
+        graph_positions = GAMEsAlgorithm.graph_nodes_to_positions(graph)
         distance_to_point_i = distance_metric(graph_positions, surface_point_i)
         nearest_point_index = np.argmin(distance_to_point_i)
         nearest_node = list(graph.nodes)[nearest_point_index]
@@ -188,7 +193,7 @@ class GAMEsAlgorithm:
 
         # remove isolated nodes
         graph.remove_nodes_from(list(nx.isolates(graph)))
-        print(i, graph.number_of_nodes(), graph.number_of_edges())
+        # print(i, graph.number_of_nodes(), graph.number_of_edges())
       
       # remove nodes never selected as best matching node
       remove_node_list = []
@@ -198,7 +203,7 @@ class GAMEsAlgorithm:
       graph.remove_nodes_from(remove_node_list)
       graph.remove_nodes_from(list(nx.isolates(graph)))
 
-      graph_positions = self._graph_nodes_to_positions(graph)
+      graph_positions = GAMEsAlgorithm.graph_nodes_to_positions(graph)
       average_distance_lm_to_surf = np.mean([euclidean_distance(graph_positions, surface_point_i).min() for surface_point_i in surface_points])
       print(f"accuracy is {average_distance_lm_to_surf}")
 
