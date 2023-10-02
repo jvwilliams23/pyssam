@@ -158,8 +158,16 @@ def grow_landmark_network(
       graph.remove_nodes_from(list(nx.isolates(graph)))
       print(i, graph.number_of_nodes(), graph.number_of_edges())
     
+    # remove nodes never selected as best matching node
+    remove_node_list = []
+    for node_i in graph.nodes:
+      if not graph.nodes[node_i]["nearest"]:
+        remove_node_list.append(node_i)
+    graph.remove_nodes_from(remove_node_list)
+    graph.remove_nodes_from(list(nx.isolates(graph)))
+
     graph_positions = _graph_nodes_to_positions(graph)
-    average_distance_lm_to_surf = np.sum([euclidean_distance(graph_positions, surface_point_i).min() for surface_point_i in surface_points])
+    average_distance_lm_to_surf = np.mean([euclidean_distance(graph_positions, surface_point_i).min() for surface_point_i in surface_points])
 
   return graph
 
