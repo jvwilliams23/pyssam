@@ -79,7 +79,7 @@ class GAMEsAlgorithm:
       # graph_positions_adapt[nearest_node_index] += lrate[graph.nodes[nearest_node]["firing_value_counter"]] * (surface_point_i - graph_positions_adapt[nearest_node_index])
 
       # update firing_value_counter
-      graph = self._update_firing_values(graph, nearest_node)
+      graph = self._update_firing_values(graph, nearest_node, rate_decay_intervals)
 
       # check some cutoff
 
@@ -238,7 +238,8 @@ class GAMEsAlgorithm:
     graph.remove_edges_from(remove_edges)
     return graph
 
-  def _graph_nodes_to_positions(self, graph):
+  @staticmethod
+  def graph_nodes_to_positions(graph):
     return np.array(list(nx.get_node_attributes(graph, "position").values()))
 
   def mahalanobis_distance(self, x, y):
