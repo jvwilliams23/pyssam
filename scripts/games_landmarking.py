@@ -83,8 +83,6 @@ class GAMEsAlgorithm:
       # update firing_value_counter
       graph = self._update_firing_values(graph, nearest_node, rate_decay_intervals)
 
-      # check some cutoff
-
     # final evaluation
     graph_positions = GAMEsAlgorithm.graph_nodes_to_positions(graph)
     average_distance_lm_to_surf = np.mean([euclidean_distance(graph_positions, surface_point_i).min() for surface_point_i in surface_points])
