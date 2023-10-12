@@ -8,12 +8,12 @@ from sklearn.utils import shuffle
 import vedo as v
 from pyssam.utils import euclidean_distance
 
-def getInputs():
+def get_inputs():
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument(
     "--meshfile",
     "-m",
-    default="dataset/*/STL/ET/*_ET_SmoothOpen.stl",
+    default="scripts/test_mesh/meanLUL.stl",
     type=str,
     help="directory containing meshes to grow",
   )
