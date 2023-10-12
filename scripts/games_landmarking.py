@@ -176,7 +176,7 @@ class GAMEsAlgorithm:
             node_j = edge_j[1]
             firing_value_neighbor = graph.nodes[node_j]["firing_value"]
             position_node_j = graph.nodes[node_j]["position"]
-            distance_nearest_to_neighbor = distance_metric(position_nearest_node, position_node_j)
+            distance_nearest_to_neighbor = euclidean_distance(position_nearest_node, position_node_j)
             SIGMA = 0.42 # empirical parameter from Ferrarini et al.
             morph_parameter_neighbor_j = morph_parameter_nearest * np.exp(-distance_nearest_to_neighbor / (2 * SIGMA**2.0))
             # move neighbor nodes position
@@ -252,24 +252,12 @@ class GAMEsAlgorithm:
     and the difference of each array (delta)
     """
     delta = x - y
-    if len(np.where(delta == delta[0])[0]) == delta.size:
-      return 0
     X = np.vstack([x, y])
+    covariance_matrix = np.cov(X.T)
+    inverse_covariance_matrix = np.linalg.inv(covariance_matrix)
 
-    V = np.cov(X.T)
+    return np.sqrt(np.sum(np.dot(delta, inverse_covariance_matrix) * delta, axis=-1))
 
-    if V[0, 0] == 0 or V[1, 1] == 0 or V[2, 2] == 0:
-      print("SINGULAR MATRIX, ADJUSTING")
-      V += np.eye(3) * 1.0e-6
-      # return 10000000
-      # exit()
-
-    VI = np.linalg.inv(V)
-
-    if np.sum(np.dot(delta, VI) * delta) < 0:
-      return 10000000
-
-    return np.sqrt(np.sum(np.dot(delta, VI) * delta, axis=-1))
 
 ###################################################################################
 # 							MAIN RUN FOR ADAPT CODE
