@@ -32,7 +32,7 @@ class ParticleEntropyBasedLandmarking:
   This is a group-wise landmarking approach, which is supposed to optimise 
   correspondences across the entire dataset, with respect to information entropy.
   """
-  __init__(self):
+  def __init__(self):
     pass
   
 
