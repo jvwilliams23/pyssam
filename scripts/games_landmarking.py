@@ -65,6 +65,8 @@ class GAMEsAlgorithm:
           kernel_width=sigma[graph.nodes[neighbor_node_j]["firing_value_counter"]],
           learning_rate=lrate[graph.nodes[neighbor_node_j]["firing_value_counter"]]
         )
+        neighbor_node_index_j = graph.nodes[neighbor_node_j]["numpy_index"]
+        graph_positions_adapt[neighbor_node_index_j] += lrate[graph.nodes[neighbor_node_j]["firing_value_counter"]] * (surface_point_i - graph_positions_adapt[neighbor_node_index_j])
       
       # morph nearest node
       graph.nodes[nearest_node]["position"] = self._morph_node(
@@ -75,8 +77,8 @@ class GAMEsAlgorithm:
         learning_rate=lrate[graph.nodes[nearest_node]["firing_value_counter"]]
       )
 
-      # TODO: update numpy array at end (to avoid modifying graph_positions_adapt during loop)
-      # graph_positions_adapt[nearest_node_index] += lrate[graph.nodes[nearest_node]["firing_value_counter"]] * (surface_point_i - graph_positions_adapt[nearest_node_index])
+      # update numpy array at end (to avoid changing graph_positions_adapt during loop)
+      graph_positions_adapt[nearest_node_index] += lrate[graph.nodes[nearest_node]["firing_value_counter"]] * (surface_point_i - graph_positions_adapt[nearest_node_index])
 
       # update firing_value_counter
       graph = self._update_firing_values(graph, nearest_node, rate_decay_intervals)
