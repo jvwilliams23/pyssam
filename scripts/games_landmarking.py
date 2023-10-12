@@ -258,25 +258,23 @@ class GAMEsAlgorithm:
 
     return np.sqrt(np.sum(np.dot(delta, inverse_covariance_matrix) * delta, axis=-1))
 
-
-###################################################################################
-# 							MAIN RUN FOR ADAPT CODE
-###################################################################################
+def read_mesh(meshfile, coarsen=500):
+  surface_points = v.load(meshfile).points()[::coarsen]
+  surface_points -= surface_points.mean(axis=0)
+  return surface_points
 
 if __name__ == "__main__":
-  print(__doc__)
-  # Dictionary of labels for reading surface files
-  # -importing loadcase name and other user args
-  args = getInputs()
+  args = get_inputs()
 
-  surface_points_orig = v.load(args.meshfile).points()[::30]
-  # scale to min -1000 and max 1000. 
-  # Should allow accuracy criteria to be consistent in different cases
+  COARSEN_FACTOR = 100
+  surface_points_orig = read_mesh(args.meshfile, coarsen=COARSEN_FACTOR)
+  
   games = GAMEsAlgorithm()
-
   graph = games.grow_landmark_network(
     surface_points_orig, activation_threshold=0.01
   )
+
+  surface_points_orig = read_mesh("scripts/test_mesh/6730_mm_7.stl", coarsen=COARSEN_FACTOR)
   graph = games.adapt_landmark_network(
     surface_points_orig, graph
   )
