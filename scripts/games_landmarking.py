@@ -86,7 +86,8 @@ class GAMEsAlgorithm:
     # final evaluation
     graph_positions = GAMEsAlgorithm.graph_nodes_to_positions(graph)
     average_distance_lm_to_surf = np.mean([euclidean_distance(graph_positions, surface_point_i).min() for surface_point_i in surface_points])
-    print(f"adapt accuracy is {average_distance_lm_to_surf}")
+    print(f"(adapt) mean euclidean distance from surface point to closest landmark {average_distance_lm_to_surf} mm")
+    print(f"(adapt) mean euclidean distance from original landmarks to new landmarks {np.mean(abs(graph_positions_adapt - graph_positions_orig))} mm")
     return graph
 
   def _rbf_kernel(self, distance, std_dev):
@@ -205,7 +206,7 @@ class GAMEsAlgorithm:
 
       graph_positions = GAMEsAlgorithm.graph_nodes_to_positions(graph)
       average_distance_lm_to_surf = np.mean([euclidean_distance(graph_positions, surface_point_i).min() for surface_point_i in surface_points])
-      print(f"accuracy is {average_distance_lm_to_surf}")
+      print(f"(grow) mean euclidean distance from surface point to closest landmark {average_distance_lm_to_surf} mm")
 
     return graph
 
