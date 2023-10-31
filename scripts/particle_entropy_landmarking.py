@@ -32,6 +32,12 @@ class ParticleEntropyBasedLandmarking:
   This is a group-wise landmarking approach, which is supposed to optimise 
   correspondences across the entire dataset, with respect to information entropy.
   """
+    # define initial random sample of points
+
+    # get PDF by 'parzen window sampling', using gaussian kernel
+
+    # function for cost-function
+
 def random_spherical_coord(radius):
   phi = np.deg2rad(np.random.uniform(0,360))
   theta = np.deg2rad(np.random.uniform(0,360))
