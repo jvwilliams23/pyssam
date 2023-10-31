@@ -32,7 +32,18 @@ class ParticleEntropyBasedLandmarking:
   This is a group-wise landmarking approach, which is supposed to optimise 
   correspondences across the entire dataset, with respect to information entropy.
   """
+  def __init__(self, samples, number_of_particles):
+    self.samples = samples
+    self.number_of_particles = number_of_particles
+    self.landmarks = self._initialise_landmarks(samples, number_of_particles=self.number_of_particles)
+
+  def _initialise_landmarks(self, samples, number_of_particles):  
     # define initial random sample of points
+    landmarks = []
+    for sample_i in samples:
+      random_surf_points = sample_i[np.random.randint(0, len(sample_i), number_of_particles)]
+      landmarks.append(random_surf_points)
+    return np.array(landmarks)
 
     # get PDF by 'parzen window sampling', using gaussian kernel
 
@@ -76,4 +87,4 @@ if __name__ == "__main__":
   dataset = make_peanut_dataset()
 
   # Should allow accuracy criteria to be consistent in different cases
-  particle_entropy_landmarking = ParticleEntropyBasedLandmarking()
+  particle_entropy_landmarking = ParticleEntropyBasedLandmarking(dataset, number_of_particles=20)
