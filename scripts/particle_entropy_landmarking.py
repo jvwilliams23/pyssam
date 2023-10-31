@@ -4,6 +4,7 @@ from sys import exit
 
 import networkx as nx
 import numpy as np
+from scipy.spatial.distance import cdist
 from sklearn.utils import shuffle
 import vedo as v
 from pyssam.utils import euclidean_distance
@@ -45,8 +46,23 @@ class ParticleEntropyBasedLandmarking:
       landmarks.append(random_surf_points)
     return np.array(landmarks)
 
+  def _estimate_density(self, sample_i):
     # get PDF by 'parzen window sampling', using gaussian kernel
+    prefactor = 1.0/(self.number_of_particles*(self.number_of_particles-1))
+    all_dists = cdist(sample_i, sample_i)
+    density_list = np.zeros(len(sample_i))
+    for j, dist_j in enumerate(all_dists):
+      kernel_j = self._gaussian_kernel(dist_j, dist_j.std())
+      density_list[j] = prefactor * kernel_j.sum()
+    return density_list
 
+  def _gaussian_kernel(self, dist, std_dev):
+    return np.exp(-dist/std_dev**2.0)
+  
+  def run_particle_optimisation(self):
+    for sample_i in self.samples:
+      density_list = self._estimate_density(sample_i)
+      print(density_list)
     # function for cost-function
 
 def random_spherical_coord(radius):
@@ -88,3 +104,4 @@ if __name__ == "__main__":
 
   # Should allow accuracy criteria to be consistent in different cases
   particle_entropy_landmarking = ParticleEntropyBasedLandmarking(dataset, number_of_particles=20)
+  particle_entropy_landmarking.run_particle_optimisation()
