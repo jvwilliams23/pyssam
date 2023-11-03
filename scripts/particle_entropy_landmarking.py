@@ -85,28 +85,34 @@ class ParticleEntropyBasedLandmarking:
   def _gaussian_kernel(self, dist, std_dev):
     return np.exp(-dist/std_dev**2.0)
 
-  def _advance_sampling(self, sample_points_i, gradients_i, normals_i, time_step):
+  def _advance_sampling(self, landmarks_i, gradients_i, normals_i, time_step):
     # move points based on cost function gradient, projected onto nearest normal vector of surface
     projection_onto_normal = np.sum(gradients_i*normals_i, axis=-1, keepdims=True) * normals_i
     direction_to_travel = gradients_i - projection_onto_normal
-    return sample_points_i + time_step * direction_to_travel
+    return landmarks_i + time_step * direction_to_travel
   
-  def run_initial_sampling_optimisation(self, orig_sample_points_i, orig_sample_mesh_i, case_id):
-    sample_points_i = orig_sample_points_i.copy()
+  def run_initial_sampling_optimisation(self, orig_landmarks_i, orig_sample_mesh_i, case_id):
+    landmarks_i = orig_landmarks_i.copy()
     NUM_STEPS = 100
-    TIME_STEP = 0.01
-    for time_i in range(100):
-      _density_list, _gradient_list, _normal_list = self._loop_particles_one_sample(sample_points_i, case_id)
-      sample_points_i = self._advance_sampling(sample_points_i, _gradient_list, _normal_list, time_step=TIME_STEP)
+    TIME_STEP = 2.0/NUM_STEPS
+    for time_i in range(NUM_STEPS):
+      _density_list, _gradient_list, _normal_list = self._loop_particles_one_sample(landmarks_i, case_id)
+      landmarks_i = self._advance_sampling(landmarks_i, _gradient_list, _normal_list, time_step=TIME_STEP)
     vp = v.Plotter()
-    vp += v.Points(orig_sample_points_i, r=5, c="black")
-    vp += v.Points(sample_points_i, r=5, c="blue")
+    vp += v.Points(orig_landmarks_i, r=10, c="black")
+    # vp += v.Points(landmarks_i, r=10, c="blue")
+    vp += self.samples_surfaces[case_id].alpha(0.2)
     vp.show()
-    return sample_points_i
+    vp = v.Plotter()
+    # vp += v.Points(orig_landmarks_i, r=10, c="black")
+    vp += v.Points(landmarks_i, r=10, c="blue")
+    vp += self.samples_surfaces[case_id].alpha(0.2)
+    vp.show()
+    return landmarks_i
 
   def run_particle_optimisation(self):
     case_id = 0
-    self.run_initial_sampling_optimisation(self.samples_points[case_id], self.samples_surfaces[case_id], case_id)
+    self.run_initial_sampling_optimisation(self.landmarks[case_id], self.samples_surfaces[case_id], case_id)
     # for sample_points_i in self.samples:
     #   density_list, gradient_list = self._estimate_density(sample_points_i)
     #   print(density_list, density_list.min(), density_list.max(), density_list.sum())
@@ -154,5 +160,5 @@ if __name__ == "__main__":
   dataset_points, dataset_surfaces = make_peanut_dataset()
 
   # Should allow accuracy criteria to be consistent in different cases
-  particle_entropy_landmarking = ParticleEntropyBasedLandmarking(dataset_points, dataset_surfaces, number_of_particles=20)
+  particle_entropy_landmarking = ParticleEntropyBasedLandmarking(dataset_points, dataset_surfaces, number_of_particles=100)
   particle_entropy_landmarking.run_particle_optimisation()
