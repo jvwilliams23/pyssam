@@ -60,9 +60,11 @@ class ParticleEntropyBasedLandmarking:
       landmarks.append(random_surf_points)
     return np.array(landmarks)
   
-  def _estimate_density(self, point_i, all_points):
+  def _estimate_density(self, point_i, all_points, kernel_width=None):
+    # TODO: change kernel width?
     dist_j = euclidean_distance(all_points, point_i)
-    kernel_width = dist_j.std()
+    if not kernel_width:
+      kernel_width = dist_j.std() # TODO: check kernel width makes sense
     kernel_j = self._gaussian_kernel(dist_j, kernel_width)
     density = kernel_j.sum() / (self.number_of_particles*(self.number_of_particles-1))
     gradient = ((point_i - all_points) * kernel_j[:, None]).sum(axis=0) / kernel_j.sum() / kernel_width**2.0
@@ -74,8 +76,10 @@ class ParticleEntropyBasedLandmarking:
     density_list = np.zeros(len(sample_points_i))
     gradient_list = np.zeros(sample_points_i.shape)
     nearest_surface_gradient_list = np.zeros(sample_points_i.shape)
+    max_dist = cdist(sample_points_i, sample_points_i).max()
     for j, point_j in enumerate(sample_points_i):
-      density_list[j], gradient_list[j] = self._estimate_density(point_j, sample_points_i)
+      density_list[j], gradient_list[j] = self._estimate_density(point_j, sample_points_i, kernel_width=max_dist*0.1)
+      # density_list[j], gradient_list[j] = self._estimate_density(point_j, sample_points_i, kernel_width=None)
       nearest_surface_gradient_list[j] = self._nearest_surface_normal(sample_points_i[j], self.samples_surfaces_points[case_id], self.samples_surfaces_normals[case_id])
     return density_list, gradient_list, nearest_surface_gradient_list
 
