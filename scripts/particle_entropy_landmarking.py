@@ -97,18 +97,21 @@ class ParticleEntropyBasedLandmarking:
   
   def run_initial_sampling_optimisation(self, orig_landmarks_i, orig_sample_mesh_i, case_id):
     landmarks_i = orig_landmarks_i.copy()
-    NUM_STEPS = 100
-    TIME_STEP = 2.0/NUM_STEPS
+    NUM_STEPS = 1000
+    TIME_STEP = 0.02
+    # TODO include convergence criteria?
     for time_i in range(NUM_STEPS):
+      landmarks_dist = cdist(landmarks_i, landmarks_i)
+      landmarks_dist[landmarks_dist==0] = np.inf
+      closest_landmarks = landmarks_dist.min()
       _density_list, _gradient_list, _normal_list = self._loop_particles_one_sample(landmarks_i, case_id)
       landmarks_i = self._advance_sampling(landmarks_i, _gradient_list, _normal_list, time_step=TIME_STEP)
+      print(f"density mean: {_density_list.mean()}, dev: {_density_list.std()} max: {_density_list.max()}. Closest landmarks are {closest_landmarks}")
     vp = v.Plotter()
     vp += v.Points(orig_landmarks_i, r=10, c="black")
-    # vp += v.Points(landmarks_i, r=10, c="blue")
     vp += self.samples_surfaces[case_id].alpha(0.2)
     vp.show()
     vp = v.Plotter()
-    # vp += v.Points(orig_landmarks_i, r=10, c="black")
     vp += v.Points(landmarks_i, r=10, c="blue")
     vp += self.samples_surfaces[case_id].alpha(0.2)
     vp.show()
