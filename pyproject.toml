@@ -19,6 +19,7 @@ dependencies = [
   "scikit_learn==1.2.0",
   "scikit_image==0.19.2",
   "networkx==2.5",
+  "vedo<=2023.4.6",
 ]
 
 [tool.setuptools]
