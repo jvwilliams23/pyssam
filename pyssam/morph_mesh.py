@@ -16,6 +16,24 @@ class MorphTemplateMesh:
   Source: Grassi et al. (2011) Medical Engineering & Physics.
   
   Note that this requires the meshes are already aligned. 
+  In rare cases, the error may be high. In this case, I would suggest trying a template
+  that is closer to the target if available.
+
+  Examples
+  ========
+  >>> import pyssam
+  >>> torus = pyssam.datasets.Torus()
+  >>> torus_mesh_list = torus.make_dataset(2)
+  >>> landmark_coordinates = [sample_i.points()[::10] for sample_i in torus_mesh_list]
+  >>> mesh_target_actual = torus_mesh_list[-1]
+  >>> mesh_target_computed = pyssam.morph_mesh.MorphTemplateMesh(
+          landmark_target=landmark_coordinates[-1],
+          landmark_template=landmark_coordinates[0],
+          mesh_template=torus_mesh_list[0]
+      ).mesh_target
+  >>> volume_error = 100.0 * abs(mesh_target_computed.volume() - mesh_target_actual.volume()) / mesh_target_actual.volume()
+  >>> print("volume error below 5%?", volume_error < 5.0) 
+  True
   """
   def __init__(
     self,
@@ -46,10 +64,9 @@ class MorphTemplateMesh:
       self.coords_template,
       self.std_scale,
     ) = self.scale_and_align_coordinates(
-      landmark_target, landmark_template, mesh_template.points()
+      landmark_target.copy(), landmark_template.copy(), mesh_template.points()
     )
-
-    return self.do_mesh_morphing()
+    self.do_mesh_morphing()
 
   def do_mesh_morphing(self):
     """Compute coordinates of vertices on new mesh (corresponding to landmark_target).
@@ -70,7 +87,7 @@ class MorphTemplateMesh:
     coords_new *= self.std_scale
     
     self.mesh_target = self.create_new_mesh(coords_new)
-    self.mesh_target = self.clean_new_mesh(self.mesh_target)
+    # self.mesh_target = self.clean_new_mesh(self.mesh_target)
     return self.mesh_target
 
   def create_new_mesh(self, coords):
