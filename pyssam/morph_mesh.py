@@ -27,6 +27,7 @@ class MorphTemplateMesh:
     smooth=False,
   ):
 
+    self.smooth = smooth
     kernel = "gaussian" # only one implemented currently
     # gaussian kernel width
     self.kernel_width = kernel_width
@@ -40,12 +41,12 @@ class MorphTemplateMesh:
     self.mesh_template = mesh_template
 
     (
-      self.landmarks_target,
-      self.landmarks_template,
+      self.landmark_target,
+      self.landmark_template,
       self.coords_template,
       self.std_scale,
     ) = self.scale_and_align_coordinates(
-      landmarks_target, landmarks_template, mesh_template.points()
+      landmark_target, landmark_template, mesh_template.points()
     )
 
     return self.do_mesh_morphing()
@@ -59,7 +60,7 @@ class MorphTemplateMesh:
     coords_new = self.coords_template.copy()
     # morph template surface coordinates
     for i, coords_template_i in enumerate(self.coords_template):
-      w = get_weights(
+      w = self.get_weights(
         self.landmark_target, self.landmark_template, coords_template_i, self.kernel_function
       )
       kernel_output = self.kernel_function(self.landmark_template, coords_template_i)[:, np.newaxis]
@@ -122,7 +123,7 @@ class MorphTemplateMesh:
     return v.trimesh2vedo(mesh_targettri)
 
   def scale_and_align_coordinates(
-    self, landmarks_target, landmarks_template, coords_template
+    self, landmark_target, landmark_template, coords_template
   ):
     """Scale the template landmarks and mesh coordinates to the same size as the 
     target landmarks.
@@ -140,8 +141,14 @@ class MorphTemplateMesh:
 
     Returns
     -------
-    weights : array_like
-      Weights are coefficients that control how strongly the kernel effects each point.
+    landmark_target : array_like
+      Landmarks of the new shape which we want to morph the mesh to, scaled to 1 std-dev
+
+    landmark_template : array_like
+      Landmarks of the template shape, scaled to same scale as target landmarks.
+
+    template_coords_i : array_like
+      coordinates on the template surface mesh, scaled to same scale as target landmarks.
     """
     # scale and align template mesh and landmarks
     size_target = landmark_target.max(axis=0) - landmark_target.min(axis=0)
@@ -161,7 +168,7 @@ class MorphTemplateMesh:
     landmark_template /= std_scale
     landmark_target /= std_scale
 
-    return landmarks_target, landmarks_template, coords_template, std_scale
+    return landmark_target, landmark_template, coords_template, std_scale
 
   def gaussian_kernel(self, landmark_template, template_coords_i):
     """Function to find distance between a coordinate and all surrounding landmarks.
