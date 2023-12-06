@@ -50,6 +50,7 @@ statistical shape and/or appearance modelling.
    tutorial/ssm_example.ipynb
    tutorial/sam_example.ipynb
    tutorial/ssam_example.ipynb
+   tutorial/mesh_morphing_example.ipynb
 
 Extending to new datasets
 -------------------------
