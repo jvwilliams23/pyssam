@@ -32,7 +32,6 @@ class TestSSM(unittest.TestCase):
       ssm_obj = pyssam.SSM(landmark_coordinates)
       ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale)
       mean_shape_columnvector = ssm_obj.compute_dataset_mean()
-      mean_shape = mean_shape_columnvector.reshape(-1, 3)
 
       # test_sample_id = np.random.randint(0, len(landmark_coordinates))
       test_shape_columnvec = (
@@ -71,7 +70,6 @@ class TestSSM(unittest.TestCase):
       ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale, desired_variance=0.7)
       num_modes = ssm_obj.required_mode_number
       mean_shape_columnvector = ssm_obj.compute_dataset_mean()
-      mean_shape = mean_shape_columnvector.reshape(-1, 3)
 
       # test_sample_id = np.random.randint(0, len(landmark_coordinates))
       test_shape_columnvec = (

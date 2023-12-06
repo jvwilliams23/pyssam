@@ -1,9 +1,11 @@
+"""Some basic datasets for unit-testing and training examples"""
 import networkx as nx
 import numpy as np
 import pyssam
 from numpy import cos, sin
+import vedo as v
 
-__all__ = ["Tree"]
+__all__ = ["Tree", "Torus"]
 
 
 class Tree:
@@ -183,3 +185,18 @@ class Tree:
     """
     tree_graph = self.make_tree()
     return self.graph_to_coords(tree_graph)
+
+class Torus:
+  def __init__(self, inner_radius_mean=1, outer_radius_mean=2, inner_radius_std=0.3, outer_radius_std=0.15):
+    self.inner_radius_mean = inner_radius_mean
+    self.outer_radius_mean = outer_radius_mean
+    self.inner_radius_std = inner_radius_std
+    self.outer_radius_std = outer_radius_std
+
+  def make_dataset(self, n_samples):
+    out_surfaces = []
+    base_pos = np.array([0,0,0])
+    for _ in range(n_samples):
+      out_surfaces.append(v.Torus(pos=base_pos, r2=np.random.normal(self.inner_radius_mean, self.inner_radius_std), r1=np.random.normal(self.outer_radius_mean, self.outer_radius_std)))
+      
+    return out_surfaces

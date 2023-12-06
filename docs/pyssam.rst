@@ -52,6 +52,14 @@ pyssam.utils module
    :undoc-members:
    :show-inheritance:
 
+pyssam.morph\_mesh module
+-------------------
+
+.. automodule:: pyssam.morph_mesh
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

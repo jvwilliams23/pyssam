@@ -16,7 +16,6 @@ def read_lung_data():
   spacing_dir_list.sort()
   im_dir_list.sort()
   # check that user has declared correct directory
-  patientIDs = [i.split("/")[-1].replace(".png", "")[-4:] for i in im_dir_list]
   landmark_dir_list = glob(f"{LANDMARK_DIR}/landmarks*.csv")
   landmark_dir_list = sorted(
     landmark_dir_list, key=lambda x: int(x.replace(".csv", "")[-4:])
