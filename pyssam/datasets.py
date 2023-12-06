@@ -1,3 +1,4 @@
+"""Some basic datasets for unit-testing and training examples"""
 import networkx as nx
 import numpy as np
 import pyssam
