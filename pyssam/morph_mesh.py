@@ -1,5 +1,4 @@
-"""
-Create a surface mesh by morphing a template mesh and landmarks 
+"""Create a surface mesh by morphing a template mesh and landmarks 
 to a new set of landmarks.
 This is done using a radial basis function with a gaussian kernel.
 Source: Grassi et al. (2011) Medical Engineering & Physics. 
@@ -8,6 +7,8 @@ import numpy as np
 import trimesh
 import vedo as v
 from . import utils 
+
+__all__ = ["MorphTemplateMesh"]
 
 class MorphTemplateMesh:
   """Create a mesh for a new set of landmarks based on a pre-existing 'template' mesh,
