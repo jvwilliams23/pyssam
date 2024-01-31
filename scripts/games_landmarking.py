@@ -272,7 +272,7 @@ if __name__ == "__main__":
     surface_points_orig, activation_threshold=0.01
   )
 
-  surface_points_orig = read_mesh("scripts/test_mesh/6730_mm_7.stl", coarsen=COARSEN_FACTOR)
-  graph = games.adapt_landmark_network(
-    surface_points_orig, graph
-  )
+  # surface_points_orig = read_mesh("scripts/test_mesh/6730_mm_7.stl", coarsen=COARSEN_FACTOR)
+  # graph = games.adapt_landmark_network(
+  #   surface_points_orig, graph
+  # )
