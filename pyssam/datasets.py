@@ -192,11 +192,19 @@ class Torus:
     self.outer_radius_mean = outer_radius_mean
     self.inner_radius_std = inner_radius_std
     self.outer_radius_std = outer_radius_std
+    self.inner_radius_arr = None
+    self.outer_radius_arr = None
 
   def make_dataset(self, n_samples):
     out_surfaces = []
     base_pos = np.array([0,0,0])
-    for _ in range(n_samples):
-      out_surfaces.append(v.Torus(pos=base_pos, r2=np.random.normal(self.inner_radius_mean, self.inner_radius_std), r1=np.random.normal(self.outer_radius_mean, self.outer_radius_std)))
+    self.inner_radius_arr = np.zeros(n_samples)
+    self.outer_radius_arr = np.zeros(n_samples)
+    for i in range(n_samples):
+      r1 = np.random.normal(self.outer_radius_mean, self.outer_radius_std)
+      r2 = np.random.normal(self.inner_radius_mean, self.inner_radius_std)
+      self.outer_radius_arr[i] = r1
+      self.inner_radius_arr[i] = r2
+      out_surfaces.append(v.Torus(pos=base_pos, r2=r2, r1=r1))
       
     return out_surfaces
