@@ -39,8 +39,7 @@ in a bash terminal ::
 
 Tutorials
 ^^^^^^^^^
-Three Jupyter notebooks are provided that give an overview of how to use pyssam for 
-statistical shape and/or appearance modelling.
+Several Jupyter notebooks are provided that give an overview of how to use pyssam for statistical shape and/or appearance modelling.
 
 .. toctree::
    :maxdepth: 1
@@ -51,6 +50,7 @@ statistical shape and/or appearance modelling.
    tutorial/sam_example.ipynb
    tutorial/ssam_example.ipynb
    tutorial/mesh_morphing_example.ipynb
+   tutorial/fit_parameters_example.ipynb
 
 Extending to new datasets
 -------------------------
