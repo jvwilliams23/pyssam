@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyssam"
-version = "0.1.2"
+version = "0.2.2"
 authors = [
   { name="Josh Williams" },
 ]
@@ -15,7 +15,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 dependencies = [
-  "numpy>=1.23",
+  "numpy>1.23,<2.0",
   "scikit_learn==1.2.0",
   "scikit_image==0.19.2",
   "networkx==2.5",
