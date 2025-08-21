@@ -119,8 +119,7 @@ class StatisticalModelBase(ABC):
     else:
       raise AssertionError(f"Unexpected shape {dataset.shape}")
 
-  @abstractmethod
-  def compute_dataset_mean(self) -> np.array:
+  def compute_dataset_mean(self, dataset_columnvector) -> np.array:
     """Average over all samples to produce a column-vector of the mean shape,
     appearance, or other quantity included in model.
 
@@ -128,7 +127,8 @@ class StatisticalModelBase(ABC):
     -------
     mean_columnvector : array_like
     """
-    pass
+    self.mean_dataset_columnvector = np.mean(dataset_columnvector, axis=0)
+    return self.mean_dataset_columnvector
 
   def create_pca_model(
     self, dataset: np.ndarray, desired_variance: float = 0.9

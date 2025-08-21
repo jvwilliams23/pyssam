@@ -74,7 +74,7 @@ class TestSAM(unittest.TestCase):
       sam_obj.appearance_columns_scale, desired_variance=0.99999
     )
     # num_modes = sam_obj.required_mode_number
-    mean_appearance = sam_obj.compute_dataset_mean()
+    mean_appearance = sam_obj.compute_dataset_mean(sam_obj.appearance_columns_scale)
 
     # run test for all cases in database
     for test_appearance in APPEARANCE:

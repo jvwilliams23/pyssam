@@ -31,7 +31,7 @@ class TestSSM(unittest.TestCase):
 
       ssm_obj = pyssam.SSM(landmark_coordinates)
       ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale)
-      mean_shape_columnvector = ssm_obj.compute_dataset_mean()
+      mean_shape_columnvector = ssm_obj.compute_dataset_mean(ssm_obj.landmarks_columns_scale)
 
       # test_sample_id = np.random.randint(0, len(landmark_coordinates))
       test_shape_columnvec = (
@@ -69,7 +69,7 @@ class TestSSM(unittest.TestCase):
       ssm_obj = pyssam.SSM(landmark_coordinates)
       ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale, desired_variance=0.7)
       num_modes = ssm_obj.required_mode_number
-      mean_shape_columnvector = ssm_obj.compute_dataset_mean()
+      mean_shape_columnvector = ssm_obj.compute_dataset_mean(ssm_obj.landmarks_columns_scale)
 
       # test_sample_id = np.random.randint(0, len(landmark_coordinates))
       test_shape_columnvec = (
@@ -124,7 +124,7 @@ class TestSSM(unittest.TestCase):
 
       target_shape = ssm_obj.landmarks_columns_scale[test_sample_id]
       model_parameters = ssm_obj.fit_model_parameters(target_shape, ssm_obj.pca_model_components, num_modes=2)
-      dataset_mean = ssm_obj.compute_dataset_mean()
+      dataset_mean = ssm_obj.compute_dataset_mean(ssm_obj.landmarks_columns_scale)
       morphed_shape = ssm_obj.morph_model(dataset_mean, ssm_obj.pca_model_components, model_parameters, num_modes=2)
       error = abs(target_shape - morphed_shape)
       assert not np.isclose(error.mean(), 0), f"error is zero ({error.mean()}), but should be non-zero"

@@ -75,7 +75,7 @@ class TestSSAM(unittest.TestCase):
     ssam_obj.create_pca_model(
       ssam_obj.shape_appearance_columns, desired_variance=0.99999
     )
-    mean_shape_appearance = ssam_obj.compute_dataset_mean()
+    mean_shape_appearance = ssam_obj.compute_dataset_mean(ssam_obj.shape_appearance_columns)
 
     # run test for all cases in database
     for test_shape_appearance_column in ssam_obj.shape_appearance_columns:
