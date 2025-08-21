@@ -26,7 +26,7 @@ class TestMorphMesh(unittest.TestCase):
       torus_data = torus.make_dataset(2)
 
       landmark_coordinates = np.array(
-        [sample_i.points()[::10] for sample_i in torus_data]
+        [sample_i.points[::10] for sample_i in torus_data]
       )
 
       landmark_target = landmark_coordinates[-1]
