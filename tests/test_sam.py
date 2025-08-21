@@ -1,8 +1,10 @@
+import importlib.util
 import unittest
 from glob import glob
 
 import numpy as np
 import pyssam
+import pytest
 
 
 def read_lung_data():
@@ -67,6 +69,9 @@ def read_lung_data():
 
 
 class TestSAM(unittest.TestCase):
+  @pytest.mark.skipif(
+    not importlib.util.find_spec("skimage"), reason="requires skimage"
+  )
   def test_morph_model(self):
     LANDMARKS, APPEARANCE, _ = read_lung_data()
     sam_obj = pyssam.SAM(APPEARANCE)

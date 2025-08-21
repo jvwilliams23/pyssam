@@ -1,10 +1,14 @@
+import importlib.util
 import unittest
 
 import numpy as np
 import pyssam
-
+import pytest
 
 class TestDatasets(unittest.TestCase):
+  @pytest.mark.skipif(
+    not importlib.util.find_spec("networkx"), reason="requires networkx"
+  )
   def test_number_of_ends(self):
     for num_extra_ends in range(0, 4):
       num_extra_ends = 1
@@ -15,6 +19,9 @@ class TestDatasets(unittest.TestCase):
         num_ends == expected_ends
       ), f"expected landmarks {expected_ends} != {num_ends}"
 
+  @pytest.mark.skipif(
+    not importlib.util.find_spec("vedo"), reason="requires vedo"
+  )
   def test_torus_modes_normalised(self):
     N_SAMPLES = 100
 
@@ -35,6 +42,9 @@ class TestDatasets(unittest.TestCase):
       num_nonzero_modes == EXPECTED_NONZERO_MODES
     ), f"num non-zero modes {num_nonzero_modes} but expected {EXPECTED_NONZERO_MODES} for variances {explained_variance}"
 
+  @pytest.mark.skipif(
+    not importlib.util.find_spec("vedo"), reason="requires vedo"
+  )
   def test_torus_modes_not_normalised(self):
     N_SAMPLES = 100
 
@@ -54,7 +64,10 @@ class TestDatasets(unittest.TestCase):
     assert (
       num_nonzero_modes == EXPECTED_NONZERO_MODES
     ), f"num non-zero modes {num_nonzero_modes} but expected {EXPECTED_NONZERO_MODES} for variances {explained_variance}"
-
+  
+  @pytest.mark.skipif(
+    not importlib.util.find_spec("vedo"), reason="requires vedo"
+  )
   def test_torus_to_points(self):
     N_SAMPLES = 2
 
