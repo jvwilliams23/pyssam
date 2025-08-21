@@ -11,13 +11,13 @@ from sklearn.decomposition import PCA
 class StatisticalModelBase(ABC):
   """Abstract base class for statistical model."""
 
-  def save_model(self, filename):
+  def save_model(self, filename, num_modes=10000000):
     np.savez(
       filename,
       mean=self.mean_dataset_columnvector.astype(np.float32),
-      pca_components=self.pca_model_components.astype(np.float32)[:args.num_modes],
-      pca_std=self.std.astype(np.float32)[:args.num_modes],
-      cumsum=self.pca_object.explained_variance_ratio_.astype(np.float32)[:args.num_modes]
+      pca_components=self.pca_model_components.astype(np.float32)[:num_modes],
+      pca_std=self.std.astype(np.float32)[:num_modes],
+      cumsum=self.pca_object.explained_variance_ratio_.astype(np.float32)[:num_modes]
     )
 
   @staticmethod
