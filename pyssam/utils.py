@@ -3,7 +3,11 @@
 from warnings import warn
 
 import numpy as np
-from skimage.io import imread
+try:
+  from skimage.io import imread
+  _has_skimage = True
+except ImportError as err:
+  _has_skimage = False
 
 __all__ = ["euclidean_distance", "loadXR", "AppearanceFromXray"]
 
@@ -41,6 +45,7 @@ def loadXR(file) -> np.ndarray:
   grayscale_image : array_like
       Pixel values as grayscale with range [0:1].
   """
+  assert _has_skimage, "loadXR requires skimage is installed"
   grayscale_image = imread(file, as_gray=True)
   return grayscale_image
 

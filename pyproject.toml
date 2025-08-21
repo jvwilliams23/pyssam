@@ -15,13 +15,12 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 dependencies = [
-  "numpy>1.23,<2.0",
-  "scikit_learn==1.2.0",
-  "scikit_image==0.19.2",
-  "networkx==2.5",
-  "vedo<=2023.4.6",
-  "trimesh"
+  "numpy",
+  "scikit_learn"
 ]
+
+[project.optional-dependencies]
+full = ["vedo", "trimesh", "networkx", "scikit_image"]
 
 [tool.setuptools]
 packages = ["pyssam"]

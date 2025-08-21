@@ -3,9 +3,20 @@ to a new set of landmarks.
 This is done using a radial basis function with a gaussian kernel.
 Source: Grassi et al. (2011) Medical Engineering & Physics. 
 """
+from warnings import warn
 import numpy as np
-import trimesh
-import vedo as v
+try:
+  import trimesh
+  _has_trimesh = True
+except ImportError as err_trimesh:
+  _has_trimesh = False
+  warn(str(err_trimesh))
+try:
+  import vedo as v
+  _has_vedo = True
+except ImportError as err_vedo:
+  _has_vedo = False
+  warn(str(err_vedo))
 from . import utils 
 
 __all__ = ["MorphTemplateMesh"]
@@ -45,6 +56,7 @@ class MorphTemplateMesh:
     kernel_width=0.3,
     smooth=False,
   ):
+    assert _has_vedo, "vedo required to run MorphTemplateMesh"
 
     self.smooth = smooth
     kernel = "gaussian" # only one implemented currently
@@ -123,6 +135,8 @@ class MorphTemplateMesh:
       vedo object containing coordinates and face connectivity for new surface mesh
     """
     # smoothing and clean up
+    if not _has_trimesh:
+      raise err_trimesh
     mesh_targettri = mesh_target.to_trimesh()
     watertight = mesh_targettri.is_watertight
     if not watertight:

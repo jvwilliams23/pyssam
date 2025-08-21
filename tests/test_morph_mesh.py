@@ -1,11 +1,16 @@
+import importlib.util
 import unittest
 from warnings import warn
 
 import numpy as np
 import pyssam
+import pytest
 
 
 class TestMorphMesh(unittest.TestCase):
+  @pytest.mark.skipif(
+    not importlib.util.find_spec("vedo"), reason="requires vedo"
+  )
   def test_morph_mesh_torus(self):
     """Create a torus dataset with two samples.
     Use the first sample as a template, and the second as a target.

@@ -4,7 +4,6 @@ from typing import Any, Tuple
 from warnings import warn
 
 import numpy as np
-import sklearn
 from sklearn.decomposition import PCA
 
 
