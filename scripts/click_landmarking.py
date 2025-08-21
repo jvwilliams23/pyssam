@@ -27,7 +27,7 @@ def get_inputs():
 def click_landmarks_on_mesh(key):
   """taken from vedo/examples/basic/keypress.py
   """
-  global landmarks
+  global landmarks # noqa: F824
   mesh = vp.clickedActor
   if not mesh or key != "c":
       printc("click a mesh and press c.", c="r")
