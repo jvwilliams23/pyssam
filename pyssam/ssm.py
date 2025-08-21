@@ -38,13 +38,4 @@ class SSM(StatisticalModelBase):
     self.landmarks_columns_scale = self.landmark_data_to_column(
       self.landmarks_scale
     )
-
-  def compute_dataset_mean(self) -> np.array:
-    """Average over all samples to produce a column-vector of the mean shape.
-
-    Returns
-    -------
-    mean_columnvector : array_like
-        mean shape of all samples in dataset
-    """
-    return np.mean(self.landmarks_columns_scale, axis=0)
+    self.compute_dataset_mean(self.landmarks_columns_scale)

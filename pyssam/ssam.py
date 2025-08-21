@@ -58,14 +58,4 @@ class SSAM(StatisticalModelBase):
     self.shape_appearance_columns = self.landmark_data_to_column(
       self.shape_appearance
     )
-
-  def compute_dataset_mean(self) -> np.ndarray:
-    """Average over all samples to get column-vector of mean shape and
-    appearance.
-
-    Returns
-    -------
-    mean_columnvector : array_like
-        mean shape and appearance of all samples in dataset
-    """
-    return np.mean(self.shape_appearance_columns, axis=0)
+    self.compute_dataset_mean(self.shape_appearance_columns)
