@@ -11,6 +11,23 @@ from sklearn.decomposition import PCA
 class StatisticalModelBase(ABC):
   """Abstract base class for statistical model."""
 
+  def save_model(self, filename):
+    np.savez(
+      filename,
+      mean=self.mean_dataset_columnvector.astype(np.float32),
+      pca_components=self.pca_model_components.astype(np.float32)[:args.num_modes],
+      pca_std=self.std.astype(np.float32)[:args.num_modes],
+      cumsum=self.pca_object.explained_variance_ratio_.astype(np.float32)[:args.num_modes]
+    )
+
+  @staticmethod
+  def load_model(filename):
+    npzfile = np.load(filename)
+    mean_dataset_columnvector = npzfile["mean"]
+    pca_model_components = npzfile["pca_components"]
+    std = npzfile["pca_std"]
+    return mean_dataset_columnvector, pca_model_components, std
+
   def landmark_data_to_column(self, landmark_array):
     """Reduce an containing spatial information on landmarks in cartesian
     coordinates to essentially a set of stacked column-vectors. Remove any
@@ -175,97 +192,18 @@ class StatisticalModelBase(ABC):
   def fit_model_parameters(
     self,
     input_sample,
-    pca_model_components: np.ndarray,
     num_modes: int = 1000000,
   ) -> np.array:
-    """Find the model parameters which best match the given input_sample with
-    the trained pca model. Assumes that the shape can be described by
-    input_sample \approx dataset_mean + model_modes \cdot model_std.
-
-    Parameters
-    ----------
-    input_sample : array_like
-        Column-vector representing landmark information (e.g. shape, appearance)
-    pca_model_components : array_like
-        eigenvectors of covariance matrix, obtain by PCA.
-    num_modes: int
-        Number of principal components (or `modes') to include in model
-        to morph. By default this is set to a high number to set all modes
-        as included.
-
-    Returns
-    -------
-    model_parameters : array_like
-        model parameters used to perturb each principal component by some amount
-        1D array, where values should all be within +/- 3.
-    """
-    dataset_mean = self.compute_dataset_mean()
-    model_parameters = (
-      np.dot(
-        (input_sample - dataset_mean),
-        pca_model_components[:num_modes].T,
-      )
-      / self.std[:num_modes]
-    )
-    return model_parameters
+    """See docs in static function pyssam.fit_model_parameters"""
+    return fit_model_parameters(input_sample, self.pca_model_components, self.std, self.mean_dataset_columnvector, num_modes)
 
   def morph_model(
     self,
-    mean_dataset_columnvector: np.array,
-    pca_model_components: np.ndarray,
     model_parameters: np.array,
     num_modes: int = 1000000,
   ) -> np.array:
-    """Morph the mean dataset based on the PCA weights and variances, with some
-    user-defined model parameters to create a new sample.
-
-    Parameters
-    ----------
-    mean_dataset_columnvector : array_like
-        mean shape of the training data in a 1D array.
-    pca_model_components : array_like
-        eigenvectors of covariance matrix, obtain by PCA.
-    model_parameters : array_like
-        model parameters used to perturb each principal component by some amount
-        1D array, where values should all be within +/- 3.
-    num_modes : int
-        Number of principal components (or `modes') to include in model
-        to morph. By default this is set to a high number to set all modes
-        as included.
-
-    Returns
-    -------
-    morphed_output : array_like
-        A 1D array which has been perturbed from the mean shape based
-        on the pca_model and model_parameters.
-
-    Raises
-    ------
-    Warning
-        If model parameters are outwith +/- 3
-    AssertionError
-        If number of dimension in pca_model_components not equal to 2
-    """
-    if np.any(abs(model_parameters) > 3.0):
-      if np.any(abs(model_parameters) > 10.0):
-        raise AssertionError(
-          f"Applying extremely large model parameter ({abs(model_parameters).max()}) "
-          "which may produce unrealistic output"
-        )
-      else:
-        warn(
-          f"Applying large model parameter ({abs(model_parameters).max()}) "
-          "which may produce unrealistic output"
-        )
-
-    assert pca_model_components.ndim == 2, (
-      f"pca model not of expected number of dimensions"
-      f" (shape is {pca_model_components.shape})"
-    )
-    model_weight = model_parameters * self.std[:num_modes]
-    return mean_dataset_columnvector + np.dot(
-      pca_model_components[:num_modes].T, model_weight
-    )
+    """See docs in static function pyssam.morph_model"""
+    return morph_model(self.mean_dataset_columnvector, self.pca_model_components, model_parameters, self.std, num_modes)
 
   def do_pca(
     self, dataset: np.ndarray, desired_variance: float = 0.9
@@ -337,3 +275,108 @@ class StatisticalModelBase(ABC):
         "Dataset standard deviation should be 1, "
         f"is equal to {dataset.std(axis=1)}"
       )
+
+
+"""make separate functions that are static and can be wrapped in the abstract baseclass, but also
+accessible outside of a StatisticalModel object."""
+
+def morph_model(
+  mean_dataset_columnvector: np.array,
+  pca_model_components: np.ndarray,
+  model_parameters: np.array,
+  pca_model_std: np.array,
+  num_modes: int = 1000000,
+) -> np.array:
+  """Morph the mean dataset based on the PCA weights and variances, with some
+  user-defined model parameters to create a new sample.
+
+  Parameters
+  ----------
+  mean_dataset_columnvector : array_like
+      mean shape of the training data in a 1D array.
+  pca_model_components : array_like
+      eigenvectors of covariance matrix, obtain by PCA.
+  model_parameters : array_like
+      model parameters used to perturb each principal component by some amount
+      1D array, where values should all be within +/- 3.
+  num_modes : int
+      Number of principal components (or `modes') to include in model
+      to morph. By default this is set to a high number to set all modes
+      as included.
+
+  Returns
+  -------
+  morphed_output : array_like
+      A 1D array which has been perturbed from the mean shape based
+      on the pca_model and model_parameters.
+
+  Raises
+  ------
+  Warning
+      If model parameters are outwith +/- 3
+  AssertionError
+      If number of dimension in pca_model_components not equal to 2
+  """
+  if np.any(abs(model_parameters) > 3.0):
+    if np.any(abs(model_parameters) > 10.0):
+      raise AssertionError(
+        f"Applying extremely large model parameter ({abs(model_parameters).max()}) "
+        "which may produce unrealistic output"
+      )
+    else:
+      warn(
+        f"Applying large model parameter ({abs(model_parameters).max()}) "
+        "which may produce unrealistic output"
+      )
+
+  assert pca_model_components.ndim == 2, (
+    f"pca model not of expected number of dimensions"
+    f" (shape is {pca_model_components.shape})"
+  )
+  model_weight = model_parameters * pca_model_std[:num_modes]
+  return mean_dataset_columnvector + np.dot(
+    pca_model_components[:num_modes].T, model_weight
+  )
+
+def fit_model_parameters(
+  input_sample,
+  pca_model_components: np.ndarray,
+  pca_model_std: np.array,
+  mean_dataset_columnvector: np.ndarray,
+  num_modes: int = 1000000,
+) -> np.array:
+  """Find the model parameters which best match the given input_sample with
+  the trained pca model. Assumes that the shape can be described by
+  input_sample \approx dataset_mean + model_modes \cdot model_std.
+
+  Parameters
+  ----------
+  input_sample : array_like
+      Column-vector representing landmark information (e.g. shape, appearance)
+  pca_model_components : array_like
+      eigenvectors of covariance matrix, obtain by PCA.
+  pca_model_std : array_like
+      eigenvalues of covariance matrix, obtain by PCA.
+  mean_dataset_columnvector : array_like
+      Array of dataset mean
+  num_modes: int
+      Number of principal components (or `modes') to include in model
+      to morph. By default this is set to a high number to set all modes
+      as included.
+
+  Returns
+  -------
+  model_parameters : array_like
+      model parameters used to perturb each principal component by some amount
+      1D array, where values should all be within +/- 3.
+  """
+  model_parameters = (
+    np.dot(
+      (input_sample - mean_dataset_columnvector),
+      pca_model_components[:num_modes].T,
+    )
+    / pca_model_std[:num_modes]
+  )
+  return model_parameters
+
+

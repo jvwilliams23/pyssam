@@ -79,7 +79,7 @@ class TestSSAM(unittest.TestCase):
 
     # run test for all cases in database
     for test_shape_appearance_column in ssam_obj.shape_appearance_columns:
-      test_params = ssam_obj.fit_model_parameters(test_shape_appearance_column, ssam_obj.pca_model_components)
+      test_params = ssam_obj.fit_model_parameters(test_shape_appearance_column)
 
       # we get some issue with large shape parameters of modes that contribute
       # very small variance. We remove these temporarily to avoid interfering
@@ -92,11 +92,7 @@ class TestSSAM(unittest.TestCase):
         f"may be scaling issue {abs(relevant_parameters)}"
       )
 
-      morphed_shape_appearance = ssam_obj.morph_model(
-        mean_shape_appearance,
-        ssam_obj.pca_model_components,
-        relevant_parameters,
-      )
+      morphed_shape_appearance = ssam_obj.morph_model(relevant_parameters)
 
       # split joined shape-appearance matrix into separate shape and appearance features
       test_shape_appearance = test_shape_appearance_column.reshape(-1, 4)

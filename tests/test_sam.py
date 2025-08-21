@@ -78,7 +78,7 @@ class TestSAM(unittest.TestCase):
 
     # run test for all cases in database
     for test_appearance in APPEARANCE:
-      test_params = sam_obj.fit_model_parameters(test_appearance, sam_obj.pca_model_components)
+      test_params = sam_obj.fit_model_parameters(test_appearance)
 
       # we get some issue with large shape parameters of modes that contribute
       # very small variance. We remove these temporarily to avoid interfering
@@ -91,9 +91,7 @@ class TestSAM(unittest.TestCase):
         f"may be scaling issue {abs(relevant_parameters)}"
       )
 
-      morphed_appearance = sam_obj.morph_model(
-        mean_appearance, sam_obj.pca_model_components, relevant_parameters
-      )
+      morphed_appearance = sam_obj.morph_model(relevant_parameters)
 
       # check that reconstructed appearance matches the target when same parameters are used
       assert np.allclose(test_appearance, morphed_appearance), (

@@ -38,7 +38,7 @@ class TestSSM(unittest.TestCase):
         landmark_coordinates[test_sample_id] - landmark_coordinates[test_sample_id].mean(axis=0)
       ).reshape(-1)
       test_shape_columnvec /= test_shape_columnvec.std()
-      test_params = ssm_obj.fit_model_parameters(test_shape_columnvec, ssm_obj.pca_model_components)
+      test_params = ssm_obj.fit_model_parameters(test_shape_columnvec)
 
       # we get some issue with large shape parameters of modes that contribute
       # very small variance. We remove these temporarily to avoid interfering
@@ -53,9 +53,7 @@ class TestSSM(unittest.TestCase):
         f"may be scaling issue {abs(relevant_parameters)}"
       )
 
-      morphed_test_shape = ssm_obj.morph_model(
-        mean_shape_columnvector, ssm_obj.pca_model_components, test_params
-      )
+      morphed_test_shape = ssm_obj.morph_model(test_params)
 
       assert np.allclose(
         test_shape_columnvec, morphed_test_shape
@@ -76,7 +74,7 @@ class TestSSM(unittest.TestCase):
         landmark_coordinates[test_sample_id] - landmark_coordinates[test_sample_id].mean(axis=0)
       ).reshape(-1)
       test_shape_columnvec /= test_shape_columnvec.std()
-      test_params = ssm_obj.fit_model_parameters(test_shape_columnvec, ssm_obj.pca_model_components)
+      test_params = ssm_obj.fit_model_parameters(test_shape_columnvec)
 
       # we get some issue with large shape parameters of modes that contribute
       # very small variance. We remove these temporarily to avoid interfering
@@ -86,7 +84,7 @@ class TestSSM(unittest.TestCase):
       ]
 
       morphed_test_shape = ssm_obj.morph_model(
-        mean_shape_columnvector, ssm_obj.pca_model_components, test_params[:num_modes], num_modes=num_modes
+        test_params[:num_modes], num_modes=num_modes
       )
 
       assert not np.allclose(
@@ -105,12 +103,12 @@ class TestSSM(unittest.TestCase):
       ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale, desired_variance=0.7)
 
       target_shape = ssm_obj.landmarks_columns_scale[test_sample_id]
-      model_parameters = ssm_obj.fit_model_parameters(target_shape, ssm_obj.pca_model_components)
+      model_parameters = ssm_obj.fit_model_parameters(target_shape)
       model_parameters = np.where(model_parameters < 5, model_parameters, 3)
       model_parameters = np.where(model_parameters > -5, model_parameters, -3)
       
-      dataset_mean = ssm_obj.compute_dataset_mean()
-      morphed_shape = ssm_obj.morph_model(dataset_mean, ssm_obj.pca_model_components, model_parameters)
+      dataset_mean = ssm_obj.compute_dataset_mean(ssm_obj.landmarks_columns_scale)
+      morphed_shape = ssm_obj.morph_model(model_parameters)
       error = abs(target_shape - morphed_shape)
       assert np.isclose(error.mean(), 0), f"error is non-zero ({error.mean()}) sample {test_sample_id}"
 
@@ -123,9 +121,9 @@ class TestSSM(unittest.TestCase):
       ssm_obj.create_pca_model(ssm_obj.landmarks_columns_scale, desired_variance=0.7)
 
       target_shape = ssm_obj.landmarks_columns_scale[test_sample_id]
-      model_parameters = ssm_obj.fit_model_parameters(target_shape, ssm_obj.pca_model_components, num_modes=2)
+      model_parameters = ssm_obj.fit_model_parameters(target_shape, num_modes=2)
       dataset_mean = ssm_obj.compute_dataset_mean(ssm_obj.landmarks_columns_scale)
-      morphed_shape = ssm_obj.morph_model(dataset_mean, ssm_obj.pca_model_components, model_parameters, num_modes=2)
+      morphed_shape = ssm_obj.morph_model(model_parameters, num_modes=2)
       error = abs(target_shape - morphed_shape)
       assert not np.isclose(error.mean(), 0), f"error is zero ({error.mean()}), but should be non-zero"
 
