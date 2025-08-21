@@ -1,5 +1,5 @@
 from pyssam import utils
-from pyssam.statistical_model_base import StatisticalModelBase
+from pyssam.statistical_model_base import StatisticalModelBase, fit_model_parameters, morph_model
 from pyssam.ssm import SSM
 from pyssam.sam import SAM
 from pyssam.ssam import SSAM
