@@ -36,7 +36,7 @@ class MorphTemplateMesh:
   >>> import pyssam
   >>> torus = pyssam.datasets.Torus()
   >>> torus_mesh_list = torus.make_dataset(2)
-  >>> landmark_coordinates = [sample_i.points()[::10] for sample_i in torus_mesh_list]
+  >>> landmark_coordinates = [sample_i.points[::10] for sample_i in torus_mesh_list]
   >>> mesh_target_actual = torus_mesh_list[-1]
   >>> mesh_target_computed = pyssam.morph_mesh.MorphTemplateMesh(
           landmark_target=landmark_coordinates[-1],
@@ -77,7 +77,7 @@ class MorphTemplateMesh:
       self.coords_template,
       self.std_scale,
     ) = self.scale_and_align_coordinates(
-      landmark_target.copy(), landmark_template.copy(), mesh_template.points()
+      landmark_target.copy(), landmark_template.copy(), mesh_template.points
     )
     self.do_mesh_morphing()
 
@@ -110,7 +110,7 @@ class MorphTemplateMesh:
     ----------
     coords : array_like
       A set of coordinates corresponding to vertices on a new mesh. Ordering must be 
-      consistent with self.mesh_template.points()
+      consistent with self.mesh_template.points
 
     Returns
     -------
@@ -118,7 +118,7 @@ class MorphTemplateMesh:
       vedo object containing coordinates and face connectivity for new surface mesh
     """
     # create mesh object from morphed vertices
-    return v.Mesh([coords, self.mesh_template.faces()])
+    return v.Mesh([coords, self.mesh_template.cells])
 
   def clean_new_mesh(self, mesh_target):
     """Use trimesh functionality to check mesh is watertight and do some cleaning

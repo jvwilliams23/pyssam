@@ -29,7 +29,7 @@ class TestDatasets(unittest.TestCase):
     data = torus.make_dataset(N_SAMPLES)
 
     landmark_coordinates = np.array(
-      [sample_i.points()[::10] for sample_i in data]
+      [sample_i.points[::10] for sample_i in data]
     )
 
     # when landmarks are scaled, should only be one mode (inner/outer radius ratio)
@@ -52,7 +52,7 @@ class TestDatasets(unittest.TestCase):
     data = torus.make_dataset(N_SAMPLES)
 
     landmark_coordinates = np.array(
-      [sample_i.points()[::10] for sample_i in data]
+      [sample_i.points[::10] for sample_i in data]
     )
 
     # when landmarks are not scaled, should be two modes (inner radius, outer radius)
@@ -75,9 +75,9 @@ class TestDatasets(unittest.TestCase):
     data = torus.make_dataset(N_SAMPLES)
 
     # landmark_coordinates = np.array(
-    #   [sample_i.points()[::10] for sample_i in data]
+    #   [sample_i.points[::10] for sample_i in data]
     # )
-    assert type(data[0].points()) == np.ndarray, f"torus.points() type np.ndarray != {type(data[0].points())}"
+    assert type(data[0].points) == np.ndarray, f"torus.points type np.ndarray != {type(data[0].points)}"
 
 
 if __name__ == "__main__":
