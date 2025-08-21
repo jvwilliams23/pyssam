@@ -135,8 +135,7 @@ class MorphTemplateMesh:
       vedo object containing coordinates and face connectivity for new surface mesh
     """
     # smoothing and clean up
-    if not _has_trimesh:
-      raise err_trimesh
+    assert _has_trimesh, "trimesh required to clean up mesh"
     mesh_targettri = mesh_target.to_trimesh()
     watertight = mesh_targettri.is_watertight
     if not watertight:
